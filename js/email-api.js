@@ -18,29 +18,29 @@ export class EmailAPI {
     // ============================================================================
     constructor() {
         this.baseUrl = './backend';                 // Path ke direktori backend PHP
-        this.requestQueue = [];                     // Queue untuk mengelola request email
-        this.isProcessing = false;                  // Flag untuk mencegah concurrent processing
+        this.antrianRequest = [];                     // Antrian untuk mengelola request email
+        this.sedangMemproses = false;                  // Flag untuk mencegah concurrent processing
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI EMAIL
-    // Fungsi: sendEmail(email, type, message, subject)
+    // Fungsi: kirimEmail(email, jenis, pesan, subjek)
     // Tujuan: Kirim notifikasi email via backend PHP
     // Parameter:
     //   - email: Alamat email penerima
-    //   - type: Jenis notifikasi (login_success, registration_success, dll.)
-    //   - message: Konten pesan email
-    //   - subject: Baris subjek email (opsional, auto-generate jika null)
+    //   - jenis: Jenis notifikasi (login_success, registration_success, dll.)
+    //   - pesan: Konten pesan email
+    //   - subjek: Baris subjek email (opsional, auto-generate jika null)
     // Returns: Promise yang resolve ke objek response
     // ============================================================================
-    async sendEmail(email, type, message, subject = null) {
+    async kirimEmail(email, jenis, pesan, subjek = null) {
         try {
             // Siapkan data request untuk backend
-            const requestData = {
+            const dataRequest = {
                 email: email,                                       // Email penerima
-                type: type,                                         // Jenis notifikasi
-                message: message,                                   // Konten pesan
-                subject: subject || this.getDefaultSubject(type, message) // Baris subjek
+                jenis: jenis,                                         // Jenis notifikasi
+                pesan: pesan,                                   // Konten pesan
+                subjek: subjek || dapatkanSubjekDefault(jenis, pesan) // Baris subjek
             };
 
             // Kirim POST request ke backend PHP
@@ -49,7 +49,7 @@ export class EmailAPI {
                 headers: {
                     'Content-Type': 'application/json',             // Header content type
                 },
-                body: JSON.stringify(requestData)                   // Payload request
+                body: JSON.stringify(dataRequest)                   // Payload request
             });
 
             // Parse response JSON dari backend
@@ -75,16 +75,16 @@ export class EmailAPI {
 
     // ============================================================================
     // DAPATKAN BARIS SUBJEK DEFAULT
-    // Fungsi: getDefaultSubject(type, message)
+    // Fungsi: dapatkanSubjekDefault(jenis, pesan)
     // Tujuan: Generate subjek email yang sesuai berdasarkan jenis notifikasi
     // Parameter:
-    //   - type: Identifier jenis notifikasi
-    //   - message: Konten pesan (untuk fallback)
+    //   - jenis: Identifier jenis notifikasi
+    //   - pesan: Konten pesan (untuk fallback)
     // Returns: String baris subjek dalam bahasa Indonesia
     // ============================================================================
-    getDefaultSubject(type, message) {
+    dapatkanSubjekDefault(jenis, pesan) {
         // Template subjek untuk berbagai jenis notifikasi
-        const subjects = {
+        const subjekTemplate = {
             'login_success': '🎉 Login Berhasil - Firebase Login System',
             'registration_success': '👋 Selamat Datang - Akun Berhasil Dibuat',
             'password_reset': '🔐 Reset Password - Permintaan Diterima',
@@ -93,96 +93,96 @@ export class EmailAPI {
         };
 
         // Kembalikan subjek untuk jenis tertentu atau subjek default
-        return subjects[type] || 'Notifikasi dari Firebase Login System';
+        return subjekTemplate[jenis] || 'Notifikasi dari Firebase Login System';
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI LOGIN SUKSES
-    // Fungsi: sendLoginNotification(email, userName)
+    // Fungsi: kirimNotifikasiLogin(email, namaUser)
     // Tujuan: Kirim email ketika pengguna berhasil login
     // Parameter:
     //   - email: Alamat email pengguna
-    //   - userName: Nama tampilan pengguna (opsional, ekstrak dari email jika null)
+    //   - namaUser: Nama tampilan pengguna (opsional, ekstrak dari email jika null)
     // Returns: Promise yang resolve ke hasil pengiriman email
     // ============================================================================
-    async sendLoginNotification(email, userName = null) {
+    async kirimNotifikasiLogin(email, namaUser = null) {
         // Ekstrak display name dari email jika tidak disediakan
-        const userDisplayName = userName || email.split('@')[0];
+        const namaTampilan = namaUser || email.split('@')[0];
         
         // Buat pesan selamat datang yang dipersonalisasi
-        const message = `Selamat datang kembali, ${userDisplayName}! Anda berhasil masuk ke sistem pada ${new Date().toLocaleString('id-ID')}.`;
+        const pesan = `Selamat datang kembali, ${namaTampilan}! Anda berhasil masuk ke sistem pada ${new Date().toLocaleString('id-ID')}.`;
 
         // Kirim email sukses login
-        return await this.sendEmail(email, 'login_success', message);
+        return await this.kirimEmail(email, 'login_success', pesan);
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI PENDAFTARAN SUKSES
-    // Fungsi: sendRegistrationNotification(email, userName)
+    // Fungsi: kirimNotifikasiPendaftaran(email, namaUser)
     // Tujuan: Kirim email ketika pengguna baru berhasil mendaftar
     // Parameter:
     //   - email: Alamat email pengguna baru
-    //   - userName: Nama tampilan pengguna (opsional, ekstrak dari email jika null)
+    //   - namaUser: Nama tampilan pengguna (opsional, ekstrak dari email jika null)
     // Returns: Promise yang resolve ke hasil pengiriman email
     // ============================================================================
-    async sendRegistrationNotification(email, userName = null) {
+    async kirimNotifikasiPendaftaran(email, namaUser = null) {
         // Ekstrak display name dari email jika tidak disediakan
-        const userDisplayName = userName || email.split('@')[0];
+        const namaTampilan = namaUser || email.split('@')[0];
         
         // Buat pesan selamat datang untuk pengguna baru
-        const message = `Akun Anda berhasil dibuat! Selamat datang, ${userDisplayName}! Bergabung dengan kami pada ${new Date().toLocaleString('id-ID')}.`;
+        const pesan = `Akun Anda berhasil dibuat! Selamat datang, ${namaTampilan}! Bergabung dengan kami pada ${new Date().toLocaleString('id-ID')}.`;
 
         // Kirim email sukses pendaftaran
-        return await this.sendEmail(email, 'registration_success', message);
+        return await this.kirimEmail(email, 'registration_success', pesan);
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI RESET PASSWORD
-    // Fungsi: sendPasswordResetNotification(email)
+    // Fungsi: kirimNotifikasiResetPassword(email)
     // Tujuan: Kirim email ketika pengguna meminta reset password
     // Parameter:
     //   - email: Alamat email pengguna
     // Returns: Promise yang resolve ke hasil pengiriman email
     // ============================================================================
-    async sendPasswordResetNotification(email) {
+    async kirimNotifikasiResetPassword(email) {
         // Buat pesan notifikasi reset password
-        const message = `Permintaan reset password untuk email ${email} pada ${new Date().toLocaleString('id-ID')}. Link reset akan expire dalam 1 jam.`;
+        const pesan = `Permintaan reset password untuk email ${email} pada ${new Date().toLocaleString('id-ID')}. Link reset akan expire dalam 1 jam.`;
 
         // Kirim email reset password
-        return await this.sendEmail(email, 'password_reset', message);
+        return await this.kirimEmail(email, 'password_reset', pesan);
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI ALERT KEAMANAN
-    // Fungsi: sendSecurityAlert(email, activity)
+    // Fungsi: kirimAlertKeamanan(email, aktivitas)
     // Tujuan: Kirim email alert keamanan untuk aktivitas mencurigakan
     // Parameter:
     //   - email: Alamat email pengguna
-    //   - activity: Jenis aktivitas mencurigakan (default: 'login')
+    //   - aktivitas: Jenis aktivitas mencurigakan (default: 'login')
     // Returns: Promise yang resolve ke hasil pengiriman email
     // ============================================================================
-    async sendSecurityAlert(email, activity = 'login') {
+    async kirimAlertKeamanan(email, aktivitas = 'login') {
         // Buat pesan alert keamanan
-        const message = `Alert keamanan: Aktivitas ${activity} mencurigakan terdeteksi untuk email ${email} pada ${new Date().toLocaleString('id-ID')}.`;
+        const pesan = `Alert keamanan: Aktivitas ${aktivitas} mencurigakan terdeteksi untuk email ${email} pada ${new Date().toLocaleString('id-ID')}.`;
 
         // Kirim email alert keamanan
-        return await this.sendEmail(email, 'security_alert', message);
+        return await this.kirimEmail(email, 'security_alert', pesan);
     }
 
     // ============================================================================
     // KIRIM NOTIFIKASI LOGOUT
-    // Fungsi: sendLogoutNotification(email)
+    // Fungsi: kirimNotifikasiLogout(email)
     // Tujuan: Kirim email ketika pengguna berhasil logout
     // Parameter:
     //   - email: Alamat email pengguna
     // Returns: Promise yang resolve ke hasil pengiriman email
     // ============================================================================
-    async sendLogoutNotification(email) {
+    async kirimNotifikasiLogout(email) {
         // Buat pesan konfirmasi logout
-        const message = `Anda telah logout dari sistem pada ${new Date().toLocaleString('id-ID')}. Terima kasih telah menggunakan layanan kami.`;
+        const pesan = `Anda telah logout dari sistem pada ${new Date().toLocaleString('id-ID')}. Terima kasih telah menggunakan layanan kami.`;
 
         // Kirim email logout
-        return await this.sendEmail(email, 'logout_success', message);
+        return await this.kirimEmail(email, 'logout_success', pesan);
     }
 
     // ============================================================================
@@ -195,19 +195,19 @@ export class EmailAPI {
     // ============================================================================
     async testEmail(email = 'qtonnnn@gmail.com') {
         // Buat pesan test dengan timestamp
-        const message = `Email test dari Firebase Login System. Dikirim pada ${new Date().toLocaleString('id-ID')}. Jika menerima email ini, sistem email berfungsi dengan baik!`;
+        const pesan = `Email test dari Firebase Login System. Dikirim pada ${new Date().toLocaleString('id-ID')}. Jika menerima email ini, sistem email berfungsi dengan baik!`;
 
         // Kirim email test dengan subjek kustom
-        return await this.sendEmail(email, 'info', message, '🧪 Test Email - Firebase Login System');
+        return await this.kirimEmail(email, 'info', pesan, '🧪 Test Email - Firebase Login System');
     }
 
     // ============================================================================
     // PERIKSA KONEKTIVITAS BACKEND
-    // Fungsi: checkBackendStatus()
+    // Fungsi: periksaStatusBackend()
     // Tujuan: Test apakah backend PHP dapat diakses dan merespons
     // Returns: Promise yang resolve ke boolean (true jika backend berfungsi)
     // ============================================================================
-    async checkBackendStatus() {
+    async periksaStatusBackend() {
         try {
             // Kirim request test ke backend
             const response = await fetch(`${this.baseUrl}/send_notification.php`, {
@@ -217,8 +217,8 @@ export class EmailAPI {
                 },
                 body: JSON.stringify({
                     email: 'test@example.com',           // Email test
-                    type: 'info',                        // Jenis notifikasi test
-                    message: 'Backend connectivity test' // Pesan test
+                    jenis: 'info',                        // Jenis notifikasi test
+                    pesan: 'Backend connectivity test' // Pesan test
                 })
             });
 
@@ -231,28 +231,28 @@ export class EmailAPI {
     }
 
     // ============================================================================
-    // PROSES QUEUE REQUEST EMAIL
-    // Fungsi: processQueue()
-    // Tujuan: Proses request email dalam queue satu per satu
+    // PROSES ANTRIAN REQUEST EMAIL
+    // Fungsi: prosesAntrian()
+    // Tujuan: Proses request email dalam antrian satu per satu
     // Termasuk rate limiting untuk mencegah overwhelming server
     // ============================================================================
-    async processQueue() {
-        // Jangan proses jika sudah memproses atau queue kosong
-        if (this.isProcessing || this.requestQueue.length === 0) {
+    async prosesAntrian() {
+        // Jangan proses jika sudah memproses atau antrian kosong
+        if (this.sedangMemproses || this.antrianRequest.length === 0) {
             return;
         }
 
         // Set flag processing
-        this.isProcessing = true;
+        this.sedangMemproses = true;
 
-        // Proses semua request dalam queue
-        while (this.requestQueue.length > 0) {
-            // Dapatkan request berikutnya dari queue
-            const request = this.requestQueue.shift();
+        // Proses semua request dalam antrian
+        while (this.antrianRequest.length > 0) {
+            // Dapatkan request berikutnya dari antrian
+            const request = this.antrianRequest.shift();
             
             try {
                 // Kirim email untuk request saat ini
-                await this.sendEmail(request.email, request.type, request.message, request.subject);
+                await this.kirimEmail(request.email, request.jenis, request.pesan, request.subjek);
                 
                 // Tambahkan delay di antara email untuk mencegah rate limiting
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -263,84 +263,84 @@ export class EmailAPI {
         }
 
         // Clear flag processing
-        this.isProcessing = false;
+        this.sedangMemproses = false;
     }
 
     // ============================================================================
-    // QUEUE EMAIL UNTUK PEMROSESAN NANTI
-    // Fungsi: queueEmail(email, type, message, subject)
-    // Tujuan: Tambahkan request email ke queue untuk pemrosesan nanti
+    // ANTRIKAN EMAIL UNTUK PEMROSESAN NANTI
+    // Fungsi: antrikanEmail(email, jenis, pesan, subjek)
+    // Tujuan: Tambahkan request email ke antrian untuk pemrosesan nanti
     // Parameter:
     //   - email: Alamat email penerima
-    //   - type: Jenis notifikasi
-    //   - message: Konten pesan
-    //   - subject: Baris subjek (opsional)
+    //   - jenis: Jenis notifikasi
+    //   - pesan: Konten pesan
+    //   - subjek: Baris subjek (opsional)
     // ============================================================================
-    queueEmail(email, type, message, subject = null) {
-        // Tambahkan request ke queue
-        this.requestQueue.push({
+    antrikanEmail(email, jenis, pesan, subjek = null) {
+        // Tambahkan request ke antrian
+        this.antrianRequest.push({
             email,
-            type,
-            message,
-            subject
+            jenis,
+            pesan,
+            subjek
         });
 
-        // Mulai memproses queue setelah delay pendek
-        setTimeout(() => this.processQueue(), 500);
+        // Mulai memproses antrian setelah delay pendek
+        setTimeout(() => this.prosesAntrian(), 500);
     }
 
     // ============================================================================
     // PENGIRIMAN EMAIL BATCH (Enhancement Opsional)
-    // Fungsi: sendBatchEmails(emailList, type, messageTemplate)
+    // Fungsi: kirimBatchEmails(emailList, jenis, templatePesan)
     // Tujuan: Kirim email yang sama ke beberapa penerima secara efisien
     // Parameter:
     //   - emailList: Array alamat email
-    //   - type: Jenis notifikasi
-    //   - messageTemplate: Fungsi template yang mengambil email dan mengembalikan pesan
+    //   - jenis: Jenis notifikasi
+    //   - templatePesan: Fungsi template yang mengambil email dan mengembalikan pesan
     // Returns: Promise yang resolve ketika semua email terkirim
     // ============================================================================
-    async sendBatchEmails(emailList, type, messageTemplate) {
-        const results = [];
+    async kirimBatchEmails(emailList, jenis, templatePesan) {
+        const hasil = [];
         
         for (const email of emailList) {
             try {
-                const message = messageTemplate(email);
-                const result = await this.sendEmail(email, type, message);
-                results.push({ email, success: result.success, result });
+                const pesan = templatePesan(email);
+                const result = await this.kirimEmail(email, jenis, pesan);
+                hasil.push({ email, success: result.success, result });
                 
                 // Tambahkan delay di antara email
                 await new Promise(resolve => setTimeout(resolve, 1000));
             } catch (error) {
                 console.error(`Failed to send batch email to ${email}:`, error);
-                results.push({ email, success: false, error });
+                hasil.push({ email, success: false, error });
             }
         }
         
-        return results;
+        return hasil;
     }
 
     // ============================================================================
-    // DAPATKAN STATUS QUEUE (Enhancement Opsional)
-    // Fungsi: getQueueStatus()
-    // Tujuan: Dapatkan informasi tentang status queue saat ini
-    // Returns: Objek dengan informasi queue
+    // DAPATKAN STATUS ANTRIAN (Enhancement Opsional)
+    // Fungsi: dapatkanStatusAntrian()
+    // Tujuan: Dapatkan informasi tentang status antrian saat ini
+    // Returns: Objek dengan informasi antrian
     // ============================================================================
-    getQueueStatus() {
+    dapatkanStatusAntrian() {
         return {
-            queueLength: this.requestQueue.length,
-            isProcessing: this.isProcessing,
+            panjangAntrian: this.antrianRequest.length,
+            sedangMemproses: this.sedangMemproses,
             baseUrl: this.baseUrl
         };
     }
 
     // ============================================================================
-    // CLEAR EMAIL QUEUE (Enhancement Opsional)
-    // Fungsi: clearQueue()
-    // Tujuan: Hapus semua request email yang pending dari queue
+    // HAPUS ANTRIAN EMAIL (Enhancement Opsional)
+    // Fungsi: bersihkanAntrian()
+    // Tujuan: Hapus semua request email yang pending dari antrian
     // ============================================================================
-    clearQueue() {
-        this.requestQueue = [];
-        this.isProcessing = false;
+    bersihkanAntrian() {
+        this.antrianRequest = [];
+        this.sedangMemproses = false;
         console.log('Email queue cleared');
     }
 }

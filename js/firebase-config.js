@@ -43,7 +43,7 @@ import {
 // Dapatkan nilai ini dari Firebase Console > Project Settings > General > Your apps
 // ============================================================================
 
-const firebaseConfig = {
+const konfigurasiFirebase = {
     apiKey: "your-api-key-here",              // API Key Firebase
     authDomain: "your-project-id.firebaseapp.com",  // Domain autentikasi
     projectId: "your-project-id",             // ID proyek Firestore
@@ -59,7 +59,7 @@ const firebaseConfig = {
 // ============================================================================
 
 // Inisialisasi Firebase app
-const app = initializeApp(firebaseConfig);
+const aplikasi = initializeApp(konfigurasiFirebase);
 
 // ============================================================================
 // INISIALISASI LAYANAN FIREBASE
@@ -68,10 +68,10 @@ const app = initializeApp(firebaseConfig);
 // ============================================================================
 
 // Inisialisasi layanan Firebase Authentication
-const auth = getAuth(app);
+const autentikasi = getAuth(aplikasi);
 
 // Inisialisasi layanan Firebase Firestore (database)
-const db = getFirestore(app);
+const database = getFirestore(aplikasi);
 
 // ============================================================================
 // EXPORT FUNGSI FIREBASE INTI
@@ -80,9 +80,9 @@ const db = getFirestore(app);
 // ============================================================================
 export {
     // Instance inti
-    app,              // Instance Firebase app
-    auth,             // Instance Firebase Authentication
-    db,               // Instance database Firestore
+    aplikasi,              // Instance Firebase app
+    autentikasi,             // Instance Firebase Authentication
+    database,               // Instance database Firestore
     
     // Fungsi autentikasi
     getAuth,                          // Dapatkan instance Auth
@@ -110,17 +110,17 @@ export {
 
 /**
  * Dapatkan pengguna yang sedang autentikasi
- * Fungsi: getCurrentUser()
+ * Fungsi: dapatkanUserSaatIni()
  * Tujuan: Dapatkan pengguna yang sedang autentikasi (jika ada)
  * Returns: Promise yang resolve ke objek pengguna atau null
  * 
  * Fungsi ini menyediakan cara yang bersih untuk mendapatkan pengguna saat ini
  * tanpa harus deal dengan sifat async dari onAuthStateChanged
  */
-export const getCurrentUser = () => {
+export const dapatkanUserSaatIni = () => {
     return new Promise((resolve) => {
         // Buat fungsi unsubscribe untuk berhenti listen setelah mendapatkan pengguna
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(autentikasi, (user) => {
             // Langsung berhenti listen untuk mencegah memory leaks
             unsubscribe();
             // Resolve dengan pengguna (atau null jika tidak terotentikasi)
@@ -131,7 +131,7 @@ export const getCurrentUser = () => {
 
 /**
  * Periksa status autentikasi
- * Fungsi: checkAuthState(callback)
+ * Fungsi: periksaStatusAuth(callback)
  * Tujuan: Subscribe untuk perubahan status autentikasi
  * Parameter:
  *   - callback: Fungsi yang dipanggil ketika status auth berubah
@@ -140,8 +140,8 @@ export const getCurrentUser = () => {
  * 
  * Fungsi ini memungkinkan komponen untuk react terhadap event login/logout
  */
-export const checkAuthState = (callback) => {
-    return onAuthStateChanged(auth, callback);
+export const periksaStatusAuth = (callback) => {
+    return onAuthStateChanged(autentikasi, callback);
 };
 
 // ============================================================================
@@ -151,41 +151,41 @@ export const checkAuthState = (callback) => {
 
 /**
  * Buat profil pengguna di Firestore
- * Fungsi: createUserProfile(user, additionalData)
+ * Fungsi: buatProfilUser(user, dataTambahan)
  * Tujuan: Buat dokumen profil pengguna di database Firestore
  * Parameter:
  *   - user: Objek pengguna Firebase dari autentikasi
- *   - additionalData: Data tambahan untuk disimpan dengan profil pengguna
+ *   - dataTambahan: Data tambahan untuk disimpan dengan profil pengguna
  * Returns: Promise yang resolve ke referensi dokumen
  * 
  * Fungsi ini membuat dokumen di koleksi 'users'
  * dengan informasi pengguna untuk easy retrieval dan management
  */
-export const createUserProfile = async (user, additionalData = {}) => {
+export const buatProfilUser = async (user, dataTambahan = {}) => {
     // Jangan lanjutkan jika objek user tidak disediakan
     if (!user) return;
 
     // Buat referensi ke dokumen pengguna di koleksi 'users'
-    const userRef = doc(db, 'users', user.uid);
+    const referensiUser = doc(database, 'users', user.uid);
     
     // Periksa apakah profil pengguna sudah ada
-    const userSnap = await getDoc(userRef);
+    const snapshotUser = await getDoc(referensiUser);
 
     // Hanya buat profil jika belum ada
-    if (!userSnap.exists()) {
+    if (!snapshotUser.exists()) {
         // Ekstrak informasi pengguna
         const { email, displayName } = user;
-        const createdAt = new Date().toISOString(); // Timestamp saat ini
+        const dibuatPada = new Date().toISOString(); // Timestamp saat ini
 
         try {
             // Buat dokumen profil pengguna
-            await setDoc(userRef, {
+            await setDoc(referensiUser, {
                 email,                              // Alamat email pengguna
-                displayName: displayName || additionalData.displayName || '', // Nama tampilan
-                createdAt,                          // Kapan akun dibuat
+                displayName: displayName || dataTambahan.displayName || '', // Nama tampilan
+                dibuatPada,                          // Kapan akun dibuat
                 emailVerified: false,               // Status verifikasi email
                 lastLogin: null,                    // Timestamp login terakhir
-                ...additionalData                   // Data tambahan apapun
+                ...dataTambahan                   // Data tambahan apapun
             });
         } catch (error) {
             console.error('Error creating user profile:', error);
@@ -194,28 +194,28 @@ export const createUserProfile = async (user, additionalData = {}) => {
     }
 
     // Kembalikan referensi dokumen
-    return userRef;
+    return referensiUser;
 };
 
 /**
  * Dapatkan profil pengguna dari Firestore
- * Fungsi: getUserProfile(uid)
+ * Fungsi: dapatkanProfilUser(uid)
  * Tujuan: Ambil data profil pengguna dari Firestore
  * Parameter:
  *   - uid: ID unik pengguna (dari Firebase Auth)
  * Returns: Promise yang resolve ke data profil pengguna atau null
  */
-export const getUserProfile = async (uid) => {
+export const dapatkanProfilUser = async (uid) => {
     try {
         // Buat referensi ke dokumen pengguna
-        const userRef = doc(db, 'users', uid);
+        const referensiUser = doc(database, 'users', uid);
         
         // Dapatkan snapshot dokumen
-        const userSnap = await getDoc(userRef);
+        const snapshotUser = await getDoc(referensiUser);
         
         // Kembalikan data dokumen jika ada, jika tidak null
-        if (userSnap.exists()) {
-            return userSnap.data();
+        if (snapshotUser.exists()) {
+            return snapshotUser.data();
         }
         return null;
     } catch (error) {
@@ -226,7 +226,7 @@ export const getUserProfile = async (uid) => {
 
 /**
  * Periksa apakah email sudah ada di Firestore
- * Fungsi: checkEmailExists(email)
+ * Fungsi: periksaEmailTerdaftar(email)
  * Tujuan: Periksa apakah alamat email sudah terdaftar
  * Parameter:
  *   - email: Alamat email untuk memeriksa
@@ -235,19 +235,19 @@ export const getUserProfile = async (uid) => {
  * Fungsi ini digunakan untuk mencegah pendaftaran email duplikat
  * dan untuk memeriksa apakah email ada sebelum percobaan login
  */
-export const checkEmailExists = async (email) => {
+export const periksaEmailTerdaftar = async (email) => {
     try {
         // Buat referensi ke koleksi users
-        const usersRef = collection(db, 'users');
+        const referensiUsers = collection(database, 'users');
         
         // Buat query untuk menemukan dokumen dengan email yang cocok
-        const q = query(usersRef, where('email', '==', email));
+        const q = query(referensiUsers, where('email', '==', email));
         
         // Eksekusi query dan dapatkan hasil
-        const querySnapshot = await getDocs(q);
+        const snapshotQuery = await getDocs(q);
         
         // Kembalikan true jika ada dokumen yang ditemukan (email ada)
-        return !querySnapshot.empty;
+        return !snapshotQuery.empty;
     } catch (error) {
         console.error('Error checking email:', error);
         // Kembalikan false pada error untuk tidak menghalangi aksi pengguna
@@ -262,17 +262,17 @@ export const checkEmailExists = async (email) => {
 
 /**
  * Perbarui informasi profil pengguna
- * Fungsi: updateUserProfile(uid, updateData)
+ * Fungsi: perbaruiProfilUser(uid, dataUpdate)
  * Tujuan: Perbarui data profil pengguna di Firestore
  * Parameter:
  *   - uid: ID unik pengguna
- *   - updateData: Objek yang berisi field yang akan diperbarui
+ *   - dataUpdate: Objek yang berisi field yang akan diperbarui
  * Returns: Promise yang resolve ketika update selesai
  */
-export const updateUserProfile = async (uid, updateData) => {
+export const perbaruiProfilUser = async (uid, dataUpdate) => {
     try {
-        const userRef = doc(db, 'users', uid);
-        await setDoc(userRef, updateData, { merge: true });
+        const referensiUser = doc(database, 'users', uid);
+        await setDoc(referensiUser, dataUpdate, { merge: true });
         return true;
     } catch (error) {
         console.error('Error updating user profile:', error);
@@ -282,16 +282,16 @@ export const updateUserProfile = async (uid, updateData) => {
 
 /**
  * Perbarui timestamp login terakhir pengguna
- * Fungsi: updateLastLogin(uid)
+ * Fungsi: perbaruiLoginTerakhir(uid)
  * Tujuan: Catat kapan pengguna terakhir login
  * Parameter:
  *   - uid: ID unik pengguna
  * Returns: Promise yang resolve ketika update selesai
  */
-export const updateLastLogin = async (uid) => {
+export const perbaruiLoginTerakhir = async (uid) => {
     try {
-        const userRef = doc(db, 'users', uid);
-        await setDoc(userRef, {
+        const referensiUser = doc(database, 'users', uid);
+        await setDoc(referensiUser, {
             lastLogin: new Date().toISOString()
         }, { merge: true });
         return true;
@@ -303,18 +303,18 @@ export const updateLastLogin = async (uid) => {
 
 /**
  * Dapatkan semua pengguna (fungsi admin)
- * Fungsi: getAllUsers()
+ * Fungsi: dapatkanSemuaUsers()
  * Tujuan: Dapatkan semua profil pengguna dari Firestore
  * Returns: Promise yang resolve ke array profil pengguna
  * Note: Gunakan dengan hati-hati - mungkin mengembalikan dataset besar
  */
-export const getAllUsers = async () => {
+export const dapatkanSemuaUsers = async () => {
     try {
-        const usersRef = collection(db, 'users');
-        const querySnapshot = await getDocs(usersRef);
+        const referensiUsers = collection(database, 'users');
+        const snapshotQuery = await getDocs(referensiUsers);
         const users = [];
         
-        querySnapshot.forEach((doc) => {
+        snapshotQuery.forEach((doc) => {
             users.push({
                 uid: doc.id,
                 ...doc.data()
@@ -325,5 +325,24 @@ export const getAllUsers = async () => {
     } catch (error) {
         console.error('Error getting all users:', error);
         return [];
+    }
+};
+
+/**
+ * Hapus profil pengguna
+ * Fungsi: hapusProfilUser(uid)
+ * Tujuan: Hapus profil pengguna dari Firestore
+ * Parameter:
+ *   - uid: ID unik pengguna
+ * Returns: Promise yang resolve ketika delete selesai
+ */
+export const hapusProfilUser = async (uid) => {
+    try {
+        const referensiUser = doc(database, 'users', uid);
+        await deleteDoc(referensiUser);
+        return true;
+    } catch (error) {
+        console.error('Error deleting user profile:', error);
+        return false;
     }
 };
