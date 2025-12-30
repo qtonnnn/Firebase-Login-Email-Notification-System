@@ -58,16 +58,16 @@ use PHPMailer\PHPMailer\Exception;      // Kelas penanganan Exception
 
 // ============================================================================
 // FUNGSI PENGIRIMAN EMAIL UTAMA
-// Fungsi: sendNotificationEmail($email, $subject, $message, $type)
+// Fungsi: kirimNotifikasiEmail($email, $subjek, $pesan, $jenis)
 // Tujuan: Kirim notifikasi email menggunakan PHPMailer dengan konfigurasi SMTP
 // Parameter:
 //   - email: Alamat email penerima
-//   - subject: Baris subjek email
-//   - message: Konten pesan email
-//   - type: Jenis notifikasi (untuk pemilihan template)
+//   - subjek: Baris subjek email
+//   - pesan: Konten pesan email
+//   - jenis: Jenis notifikasi (untuk pemilihan template)
 // Returns: Array dengan status sukses dan pesan
 // ============================================================================
-function sendNotificationEmail($email, $subject, $message, $type = 'info') {
+function kirimNotifikasiEmail($email, $subjek, $pesan, $jenis = 'info') {
     // Buat instance PHPMailer baru
     $mail = new PHPMailer(true);
     
@@ -121,16 +121,16 @@ function sendNotificationEmail($email, $subject, $message, $type = 'info') {
         $mail->isHTML(true);
         
         // Set baris subjek email
-        $mail->Subject = $subject;
+        $mail->Subject = $subjek;
         
         // Dapatkan template email berdasarkan jenis notifikasi
-        $emailTemplate = getEmailTemplate($type, $message);
+        $templateEmail = dapatkanTemplateEmail($jenis, $pesan);
         
         // Set konten body email HTML
-        $mail->Body = $emailTemplate['html'];
+        $mail->Body = $templateEmail['html'];
         
         // Set alternatif plain text untuk klien email yang tidak mendukung HTML
-        $mail->AltBody = strip_tags($message);
+        $mail->AltBody = strip_tags($pesan);
         
         // ====================================================================
         // KIRIM EMAIL
@@ -156,14 +156,14 @@ function sendNotificationEmail($email, $subject, $message, $type = 'info') {
 
 // ============================================================================
 // GENERATOR TEMPLATE EMAIL
-// Fungsi: getEmailTemplate($type, $message)
+// Fungsi: dapatkanTemplateEmail($jenis, $pesan)
 // Tujuan: Generate template email HTML berdasarkan jenis notifikasi
 // Parameter:
-//   - $type: Identifier jenis notifikasi
-//   - $message: Konten pesan untuk disertakan dalam template
+//   - $jenis: Identifier jenis notifikasi
+//   - $pesan: Konten pesan untuk disertakan dalam template
 // Returns: Array dengan konten template HTML
 // ============================================================================
-function getEmailTemplate($type, $message) {
+function dapatkanTemplateEmail($jenis, $pesan) {
     // Definisikan template email untuk berbagai jenis notifikasi
     $templates = [
         
@@ -229,7 +229,7 @@ function getEmailTemplate($type, $message) {
                     <div class="content">
                         <p><strong>Selamat!</strong></p>
                         <p>Anda telah berhasil masuk ke sistem Firebase Login.</p>
-                        <p><em>"' . $message . '"</em></p>
+                        <p><em>"' . $pesan . '"</em></p>
                         <p>Jika ini bukan aktivitas Anda, segera ubah password akun Anda.</p>
                     </div>
                     <div class="footer">
@@ -303,7 +303,7 @@ function getEmailTemplate($type, $message) {
                     <div class="content">
                         <p><strong>Akun Anda Berhasil Dibuat!</strong></p>
                         <p>Terima kasih telah bergabung dengan sistem kami.</p>
-                        <p><em>"' . $message . '"</em></p>
+                        <p><em>"' . $pesan . '"</em></p>
                         <p>Anda sekarang dapat menggunakan semua fitur yang tersedia.</p>
                     </div>
                     <div class="footer">
@@ -386,7 +386,7 @@ function getEmailTemplate($type, $message) {
                     <div class="content">
                         <p><strong>Permintaan Reset Password Diterima</strong></p>
                         <p>Kami telah menerima permintaan untuk mereset password akun Anda.</p>
-                        <p><em>"' . $message . '"</em></p>
+                        <p><em>"' . $pesan . '"</em></p>
                         <p>Klik tombol berikut untuk mereset password Anda:</p>
                         <p><a href="#" class="reset-button">Reset Password</a></p>
                         <p><small><em>Link ini akan expire dalam 1 jam.</em></small></p>
@@ -463,7 +463,7 @@ function getEmailTemplate($type, $message) {
                     <div class="content">
                         <p><strong>Alert Keamanan Akun Anda</strong></p>
                         <p>Kami mendeteksi aktivitas mencurigakan pada akun Anda.</p>
-                        <p><em>"' . $message . '"</em></p>
+                        <p><em>"' . $pesan . '"</em></p>
                         <p>Jika ini bukan aktivitas Anda, segera lakukan:</p>
                         <ul>
                             <li>Ubah password akun Anda</li>
@@ -540,7 +540,7 @@ function getEmailTemplate($type, $message) {
                         <h1>Informasi</h1>
                     </div>
                     <div class="content">
-                        <p><em>"' . $message . '"</em></p>
+                        <p><em>"' . $pesan . '"</em></p>
                     </div>
                     <div class="footer">
                         <p>Email ini dikirim secara otomatis oleh Sistem Firebase Login</p>
@@ -554,7 +554,7 @@ function getEmailTemplate($type, $message) {
     ];
     
     // Kembalikan template untuk jenis yang ditentukan, atau template info default
-    return $templates[$type] ?? $templates['info'];
+    return $templates[$jenis] ?? $templates['info'];
 }
 
 // ============================================================================
@@ -574,7 +574,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
     // Periksa apakah parameter yang diperlukan ada
-    if (!$input || !isset($input['email']) || !isset($input['type']) || !isset($input['message'])) {
+    if (!$input || !isset($input['email']) || !isset($input['jenis']) || !isset($input['pesan'])) {
         http_response_code(400);  // Bad Request
         echo json_encode([
             'success' => false,
@@ -587,11 +587,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($input['email'], FILTER_VALIDATE_EMAIL);
     
     // Dapatkan jenis notifikasi dan pesan
-    $type = $input['type'];
-    $message = $input['message'];
+    $jenis = $input['jenis'];
+    $pesan = $input['pesan'];
     
     // Dapatkan baris subjek atau gunakan default
-    $subject = $input['subject'] ?? 'Notifikasi dari Firebase Login System';
+    $subjek = $input['subjek'] ?? 'Notifikasi dari Firebase Login System';
     
     // Validasi format email
     if (!$email) {
@@ -608,10 +608,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Panggil fungsi pengiriman email dengan parameter yang divalidasi
     // ====================================================================
     
-    $result = sendNotificationEmail($email, $subject, $message, $type);
+    $hasil = kirimNotifikasiEmail($email, $subjek, $pesan, $jenis);
     
     // Kembalikan response JSON
-    echo json_encode($result);
+    echo json_encode($hasil);
     
 } else {
     // Handle metode HTTP yang tidak didukung
