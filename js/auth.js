@@ -1,4 +1,11 @@
-// Authentication Logic
+// ============================================================================
+// FIREBASE AUTHENTICATION SYSTEM
+// File: js/auth.js
+// Description: Complete authentication logic for Firebase login system
+// Includes: Login, Register, Password Reset, Logout functionality
+// ============================================================================
+
+// Import Firebase authentication functions and utilities
 import {
     auth,
     signInWithEmailAndPassword,
@@ -12,27 +19,44 @@ import {
     checkEmailExists
 } from './firebase-config.js';
 
-// DOM Elements
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const forgotForm = document.getElementById('forgotForm');
-const loading = document.getElementById('loading');
+// ============================================================================
+// DOM ELEMENTS SELECTION
+// Get references to HTML form elements for interaction
+// ============================================================================
 
-// Authentication Functions
+// Main form elements
+const loginForm = document.getElementById('loginForm');       // Login form element
+const registerForm = document.getElementById('registerForm'); // Registration form element
+const forgotForm = document.getElementById('forgotForm');     // Forgot password form element
+const loading = document.getElementById('loading');           // Loading spinner element
+
+// ============================================================================
+// USER LOGIN FUNCTION
+// Function: loginUser(email, password)
+// Purpose: Authenticate user with Firebase Email/Password
+// Parameters: 
+//   - email: User's email address
+//   - password: User's password
+// Returns: User object if successful
+// Throws: Error if authentication fails
+// ============================================================================
 export const loginUser = async (email, password) => {
     try {
+        // Show loading spinner and disable buttons
         showLoading(true);
         
         // Check if email exists before attempting login
+        // This prevents unnecessary Firebase requests
         const emailExists = await checkEmailExists(email);
         if (!emailExists) {
             throw new Error('Email belum terdaftar. Silakan daftar akun baru terlebih dahulu.');
         }
         
+        // Attempt to sign in with Firebase
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Show success notification
+        // Display success notification with user's name
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 `Selamat datang kembali, ${user.displayName || user.email}! 🎉`,
@@ -41,17 +65,19 @@ export const loginUser = async (email, password) => {
             );
         });
 
-        // Send email notification
+        // Send email notification to qtonnnn@gmail.com
+        // This is for admin monitoring purposes
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendLoginNotification(user.email, user.displayName);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail login if email fails
+            // Don't fail login if email notification fails
         }
         
-        // Redirect to dashboard after a short delay
+        // Redirect user to dashboard after successful login
+        // 1.5 second delay to show success notification
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1500);
@@ -60,7 +86,7 @@ export const loginUser = async (email, password) => {
     } catch (error) {
         console.error('Login error:', error);
         
-        // Show error notification
+        // Show error notification to user
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 getErrorMessage(error.code),
@@ -71,37 +97,54 @@ export const loginUser = async (email, password) => {
         
         throw error;
     } finally {
+        // Always hide loading spinner, regardless of success or failure
         showLoading(false);
     }
 };
 
+// ============================================================================
+// USER REGISTRATION FUNCTION
+// Function: registerUser(email, password, displayName)
+// Purpose: Create new user account with Firebase
+// Parameters:
+//   - email: New user's email address
+//   - password: New user's password
+//   - displayName: User's display name (optional)
+// Returns: User object if successful
+// Throws: Error if registration fails
+// ============================================================================
 export const registerUser = async (email, password, displayName) => {
     try {
+        // Show loading spinner and disable buttons
         showLoading(true);
         
-        // Check if email already exists
+        // Check if email already exists to prevent duplicate accounts
         const emailExists = await checkEmailExists(email);
         if (emailExists) {
             throw new Error('Email sudah terdaftar. Gunakan email lain atau masuk dengan akun yang sudah ada.');
         }
         
+        // Create new user account with Firebase
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Update user profile with display name
+        // Update user profile with display name if provided
+        // This sets the user's displayName in Firebase Auth
         if (displayName) {
             await updateProfile(user, {
                 displayName: displayName
             });
         }
         
-        // Create user profile in Firestore
+        // Create user profile document in Firestore database
+        // This stores additional user information
         await createUserProfile(user, {
             displayName: displayName || '',
-            emailVerified: false
+            emailVerified: false,
+            createdAt: new Date().toISOString()
         });
         
-        // Show success notification
+        // Display success notification with user's name
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 `Akun berhasil dibuat! Selamat datang, ${displayName || email}! 🎊`,
@@ -110,17 +153,18 @@ export const registerUser = async (email, password, displayName) => {
             );
         });
 
-        // Send email notification
+        // Send email notification to admin about new registration
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendRegistrationNotification(email, displayName);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail registration if email fails
+            // Don't fail registration if email notification fails
         }
         
-        // Redirect to dashboard after registration
+        // Redirect to dashboard after successful registration
+        // 2 second delay to show success notification
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 2000);
@@ -129,7 +173,7 @@ export const registerUser = async (email, password, displayName) => {
     } catch (error) {
         console.error('Registration error:', error);
         
-        // Show error notification
+        // Show error notification to user
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 getErrorMessage(error.code),
@@ -140,12 +184,23 @@ export const registerUser = async (email, password, displayName) => {
         
         throw error;
     } finally {
+        // Always hide loading spinner
         showLoading(false);
     }
 };
 
+// ============================================================================
+// PASSWORD RESET FUNCTION
+// Function: resetPassword(email)
+// Purpose: Send password reset email to user
+// Parameters:
+//   - email: Email address to send reset link to
+// Returns: Promise that resolves when email is sent
+// Throws: Error if password reset fails
+// ============================================================================
 export const resetPassword = async (email) => {
     try {
+        // Show loading spinner
         showLoading(true);
         
         // Check if email exists before attempting reset
@@ -154,6 +209,7 @@ export const resetPassword = async (email) => {
             throw new Error('Email belum terdaftar. Silakan periksa kembali email Anda.');
         }
         
+        // Send password reset email via Firebase
         await sendPasswordResetEmail(auth, email);
         
         // Show success notification
@@ -165,17 +221,17 @@ export const resetPassword = async (email) => {
             );
         });
 
-        // Send email notification
+        // Send email notification to admin about password reset request
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendPasswordResetNotification(email);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail password reset if email fails
+            // Don't fail password reset if email notification fails
         }
         
-        // Clear form and show login
+        // Clear form and show login form after 3 seconds
         setTimeout(() => {
             showLogin();
             document.getElementById('resetEmail').value = '';
@@ -195,12 +251,21 @@ export const resetPassword = async (email) => {
         
         throw error;
     } finally {
+        // Hide loading spinner
         showLoading(false);
     }
 };
 
+// ============================================================================
+// USER LOGOUT FUNCTION
+// Function: logoutUser()
+// Purpose: Sign out current user from Firebase
+// Returns: Promise that resolves when logout is complete
+// Throws: Error if logout fails
+// ============================================================================
 export const logoutUser = async () => {
     try {
+        // Sign out user from Firebase
         await signOut(auth);
         
         // Show success notification
@@ -212,7 +277,7 @@ export const logoutUser = async () => {
             );
         });
 
-        // Send email notification (get current user email first)
+        // Send email notification to admin about logout
         try {
             const currentUser = await getCurrentUser();
             if (currentUser && currentUser.email) {
@@ -222,7 +287,7 @@ export const logoutUser = async () => {
             }
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail logout if email fails
+            // Don't fail logout if email notification fails
         }
         
     } catch (error) {
@@ -241,8 +306,15 @@ export const logoutUser = async () => {
     }
 };
 
-// Utility Functions
+// ============================================================================
+// LOADING STATE MANAGEMENT
+// Function: showLoading(show)
+// Purpose: Show/hide loading spinner and disable form buttons
+// Parameters:
+//   - show: Boolean to show (true) or hide (false) loading state
+// ============================================================================
 function showLoading(show) {
+    // Show/hide loading spinner
     if (loading) {
         loading.style.display = show ? 'flex' : 'none';
     }
@@ -261,6 +333,14 @@ function showLoading(show) {
     });
 }
 
+// ============================================================================
+// ERROR MESSAGE TRANSLATION
+// Function: getErrorMessage(errorCode)
+// Purpose: Convert Firebase error codes to user-friendly Indonesian messages
+// Parameters:
+//   - errorCode: Firebase error code string
+// Returns: Localized error message in Indonesian
+// ============================================================================
 function getErrorMessage(errorCode) {
     const errorMessages = {
         'auth/invalid-email': 'Format email tidak valid.',
@@ -275,17 +355,26 @@ function getErrorMessage(errorCode) {
         'auth/network-request-failed': 'Koneksi jaringan gagal. Periksa koneksi internet Anda.'
     };
     
+    // Return localized message or default message
     return errorMessages[errorCode] || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.';
 }
 
-// Form Event Listeners
+// ============================================================================
+// FORM EVENT LISTENERS
+// Setup event listeners for all authentication forms
+// ============================================================================
+
+// LOGIN FORM EVENT LISTENER
+// Handles form submission for user login
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
         
+        // Get form values
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         
+        // Validate form fields
         if (!email || !password) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -297,19 +386,24 @@ if (loginForm) {
             return;
         }
         
+        // Attempt login
         await loginUser(email, password);
     });
 }
 
+// REGISTRATION FORM EVENT LISTENER
+// Handles form submission for new user registration
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
         
+        // Get form values
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const displayName = email.split('@')[0]; // Use email prefix as display name
         
+        // Validate all required fields
         if (!email || !password || !confirmPassword) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -321,6 +415,7 @@ if (registerForm) {
             return;
         }
         
+        // Validate password confirmation
         if (password !== confirmPassword) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -332,6 +427,7 @@ if (registerForm) {
             return;
         }
         
+        // Validate password strength
         if (password.length < 6) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -343,16 +439,21 @@ if (registerForm) {
             return;
         }
         
+        // Attempt registration
         await registerUser(email, password, displayName);
     });
 }
 
+// FORGOT PASSWORD FORM EVENT LISTENER
+// Handles form submission for password reset requests
 if (forgotForm) {
     forgotForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
         
+        // Get email value
         const email = document.getElementById('resetEmail').value;
         
+        // Validate email field
         if (!email) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -364,22 +465,30 @@ if (forgotForm) {
             return;
         }
         
+        // Attempt password reset
         await resetPassword(email);
     });
 }
 
-// Auto-fill email in forgot password form
+// ============================================================================
+// AUTO-FILL EMAIL IN FORGOT PASSWORD FORM
+// When user types email in login form, auto-fill in forgot password form
+// ============================================================================
 if (document.getElementById('email') && document.getElementById('resetEmail')) {
     document.getElementById('email').addEventListener('input', (e) => {
         document.getElementById('resetEmail').value = e.target.value;
     });
 }
 
-// Check authentication state on page load
+// ============================================================================
+// AUTHENTICATION STATE CHECK ON PAGE LOAD
+// Check if user is already logged in and redirect accordingly
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Check current authentication state
     checkAuthState((user) => {
+        // If user is logged in and on login page, redirect to dashboard
         if (user && window.location.pathname.endsWith('index.html')) {
-            // User is logged in, redirect to dashboard
             window.location.href = 'dashboard.html';
         }
     });
