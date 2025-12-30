@@ -1,11 +1,11 @@
 // ============================================================================
-// FIREBASE AUTHENTICATION SYSTEM
+// SISTEM AUTENTIKASI FIREBASE
 // File: js/auth.js
-// Description: Complete authentication logic for Firebase login system
-// Includes: Login, Register, Password Reset, Logout functionality
+// Description: Logika autentikasi lengkap untuk sistem login Firebase
+// Includes: Fungsi Login, Daftar, Reset Password, Logout
 // ============================================================================
 
-// Import Firebase authentication functions and utilities
+// Import fungsi autentikasi Firebase dan utilitas
 import {
     auth,
     signInWithEmailAndPassword,
@@ -20,43 +20,43 @@ import {
 } from './firebase-config.js';
 
 // ============================================================================
-// DOM ELEMENTS SELECTION
-// Get references to HTML form elements for interaction
+// PEMILIHAN ELEMEN DOM
+// Mendapatkan referensi ke elemen HTML form untuk interaksi
 // ============================================================================
 
-// Main form elements
-const loginForm = document.getElementById('loginForm');       // Login form element
-const registerForm = document.getElementById('registerForm'); // Registration form element
-const forgotForm = document.getElementById('forgotForm');     // Forgot password form element
-const loading = document.getElementById('loading');           // Loading spinner element
+// Elemen form utama
+const loginForm = document.getElementById('loginForm');       // Elemen form login
+const registerForm = document.getElementById('registerForm'); // Elemen form pendaftaran
+const forgotForm = document.getElementById('forgotForm');     // Elemen form lupa password
+const loading = document.getElementById('loading');           // Elemen loading spinner
 
 // ============================================================================
-// USER LOGIN FUNCTION
-// Function: loginUser(email, password)
-// Purpose: Authenticate user with Firebase Email/Password
-// Parameters: 
-//   - email: User's email address
-//   - password: User's password
-// Returns: User object if successful
-// Throws: Error if authentication fails
+// FUNGSI LOGIN PENGGUNA
+// Fungsi: loginUser(email, password)
+// Tujuan: Autentikasi pengguna dengan Firebase Email/Password
+// Parameter: 
+//   - email: Alamat email pengguna
+//   - password: Password pengguna
+// Returns: Objek User jika berhasil
+// Throws: Error jika autentikasi gagal
 // ============================================================================
 export const loginUser = async (email, password) => {
     try {
-        // Show loading spinner and disable buttons
+        // Tampilkan loading spinner dan nonaktifkan tombol
         showLoading(true);
         
-        // Check if email exists before attempting login
-        // This prevents unnecessary Firebase requests
+        // Periksa apakah email ada sebelum mencoba login
+        // Ini mencegah request Firebase yang tidak perlu
         const emailExists = await checkEmailExists(email);
         if (!emailExists) {
             throw new Error('Email belum terdaftar. Silakan daftar akun baru terlebih dahulu.');
         }
         
-        // Attempt to sign in with Firebase
+        // Mencoba sign in dengan Firebase
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Display success notification with user's name
+        // Tampilkan notifikasi sukses dengan nama pengguna
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 `Selamat datang kembali, ${user.displayName || user.email}! 🎉`,
@@ -65,19 +65,19 @@ export const loginUser = async (email, password) => {
             );
         });
 
-        // Send email notification to qtonnnn@gmail.com
-        // This is for admin monitoring purposes
+        // Kirim notifikasi email ke qtonnnn@gmail.com
+        // Ini untuk tujuan monitoring admin
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendLoginNotification(user.email, user.displayName);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail login if email notification fails
+            // Jangan gagalkan login jika notifikasi email gagal
         }
         
-        // Redirect user to dashboard after successful login
-        // 1.5 second delay to show success notification
+        // Redirect pengguna ke dashboard setelah login berhasil
+        // Delay 1.5 detik untuk menampilkan notifikasi sukses
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1500);
@@ -86,7 +86,7 @@ export const loginUser = async (email, password) => {
     } catch (error) {
         console.error('Login error:', error);
         
-        // Show error notification to user
+        // Tampilkan notifikasi error kepada pengguna
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 getErrorMessage(error.code),
@@ -97,54 +97,54 @@ export const loginUser = async (email, password) => {
         
         throw error;
     } finally {
-        // Always hide loading spinner, regardless of success or failure
+        // Selalu sembunyikan loading spinner, независимо от успеха или неудачи
         showLoading(false);
     }
 };
 
 // ============================================================================
-// USER REGISTRATION FUNCTION
-// Function: registerUser(email, password, displayName)
-// Purpose: Create new user account with Firebase
-// Parameters:
-//   - email: New user's email address
-//   - password: New user's password
-//   - displayName: User's display name (optional)
-// Returns: User object if successful
-// Throws: Error if registration fails
+// FUNGSI PENDAFTARAN PENGGUNA
+// Fungsi: registerUser(email, password, displayName)
+// Tujuan: Buat akun pengguna baru dengan Firebase
+// Parameter:
+//   - email: Alamat email pengguna baru
+//   - password: Password pengguna baru
+//   - displayName: Nama tampilan pengguna (opsional)
+// Returns: Objek User jika berhasil
+// Throws: Error jika pendaftaran gagal
 // ============================================================================
 export const registerUser = async (email, password, displayName) => {
     try {
-        // Show loading spinner and disable buttons
+        // Tampilkan loading spinner dan nonaktifkan tombol
         showLoading(true);
         
-        // Check if email already exists to prevent duplicate accounts
+        // Periksa apakah email sudah ada untuk mencegah akun duplikat
         const emailExists = await checkEmailExists(email);
         if (emailExists) {
             throw new Error('Email sudah terdaftar. Gunakan email lain atau masuk dengan akun yang sudah ada.');
         }
         
-        // Create new user account with Firebase
+        // Buat akun pengguna baru dengan Firebase
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Update user profile with display name if provided
-        // This sets the user's displayName in Firebase Auth
+        // Perbarui profil pengguna dengan nama tampilan jika disediakan
+        // Ini mengatur displayName pengguna di Firebase Auth
         if (displayName) {
             await updateProfile(user, {
                 displayName: displayName
             });
         }
         
-        // Create user profile document in Firestore database
-        // This stores additional user information
+        // Buat dokumen profil pengguna di database Firestore
+        // Ini menyimpan informasi pengguna tambahan
         await createUserProfile(user, {
             displayName: displayName || '',
             emailVerified: false,
             createdAt: new Date().toISOString()
         });
         
-        // Display success notification with user's name
+        // Tampilkan notifikasi sukses dengan nama pengguna
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 `Akun berhasil dibuat! Selamat datang, ${displayName || email}! 🎊`,
@@ -153,18 +153,18 @@ export const registerUser = async (email, password, displayName) => {
             );
         });
 
-        // Send email notification to admin about new registration
+        // Kirim notifikasi email ke admin tentang pendaftaran baru
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendRegistrationNotification(email, displayName);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail registration if email notification fails
+            // Jangan gagalkan pendaftaran jika notifikasi email gagal
         }
         
-        // Redirect to dashboard after successful registration
-        // 2 second delay to show success notification
+        // Redirect ke dashboard setelah pendaftaran berhasil
+        // Delay 2 detik untuk menampilkan notifikasi sukses
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 2000);
@@ -173,7 +173,7 @@ export const registerUser = async (email, password, displayName) => {
     } catch (error) {
         console.error('Registration error:', error);
         
-        // Show error notification to user
+        // Tampilkan notifikasi error kepada pengguna
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 getErrorMessage(error.code),
@@ -184,35 +184,35 @@ export const registerUser = async (email, password, displayName) => {
         
         throw error;
     } finally {
-        // Always hide loading spinner
+        // Selalu sembunyikan loading spinner
         showLoading(false);
     }
 };
 
 // ============================================================================
-// PASSWORD RESET FUNCTION
-// Function: resetPassword(email)
-// Purpose: Send password reset email to user
-// Parameters:
-//   - email: Email address to send reset link to
-// Returns: Promise that resolves when email is sent
-// Throws: Error if password reset fails
+// FUNGSI RESET PASSWORD
+// Fungsi: resetPassword(email)
+// Tujuan: Kirim email reset password ke pengguna
+// Parameter:
+//   - email: Alamat email untuk mengirim link reset
+// Returns: Promise yang resolve ketika email dikirim
+// Throws: Error jika reset password gagal
 // ============================================================================
 export const resetPassword = async (email) => {
     try {
-        // Show loading spinner
+        // Tampilkan loading spinner
         showLoading(true);
         
-        // Check if email exists before attempting reset
+        // Periksa apakah email ada sebelum mencoba reset
         const emailExists = await checkEmailExists(email);
         if (!emailExists) {
             throw new Error('Email belum terdaftar. Silakan periksa kembali email Anda.');
         }
         
-        // Send password reset email via Firebase
+        // Kirim email reset password via Firebase
         await sendPasswordResetEmail(auth, email);
         
-        // Show success notification
+        // Tampilkan notifikasi sukses
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 `Link reset password telah dikirim ke ${email}. Periksa inbox dan folder spam.`,
@@ -221,17 +221,17 @@ export const resetPassword = async (email) => {
             );
         });
 
-        // Send email notification to admin about password reset request
+        // Kirim notifikasi email ke admin tentang permintaan reset password
         try {
             const EmailAPI = await import('./email-api.js');
             const emailAPI = new EmailAPI.default();
             await emailAPI.sendPasswordResetNotification(email);
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail password reset if email notification fails
+            // Jangan gagalkan reset password jika notifikasi email gagal
         }
         
-        // Clear form and show login form after 3 seconds
+        // Clear form dan tampilkan form login setelah 3 detik
         setTimeout(() => {
             showLogin();
             document.getElementById('resetEmail').value = '';
@@ -240,7 +240,7 @@ export const resetPassword = async (email) => {
     } catch (error) {
         console.error('Password reset error:', error);
         
-        // Show error notification
+        // Tampilkan notifikasi error
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 getErrorMessage(error.code),
@@ -251,24 +251,24 @@ export const resetPassword = async (email) => {
         
         throw error;
     } finally {
-        // Hide loading spinner
+        // Sembunyikan loading spinner
         showLoading(false);
     }
 };
 
 // ============================================================================
-// USER LOGOUT FUNCTION
-// Function: logoutUser()
-// Purpose: Sign out current user from Firebase
-// Returns: Promise that resolves when logout is complete
-// Throws: Error if logout fails
+// FUNGSI LOGOUT PENGGUNA
+// Fungsi: logoutUser()
+// Tujuan: Sign out pengguna saat ini dari Firebase
+// Returns: Promise yang resolve ketika logout selesai
+// Throws: Error jika logout gagal
 // ============================================================================
 export const logoutUser = async () => {
     try {
-        // Sign out user from Firebase
+        // Sign out pengguna dari Firebase
         await signOut(auth);
         
-        // Show success notification
+        // Tampilkan notifikasi sukses
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 'Logout berhasil! Terima kasih telah menggunakan layanan kami.',
@@ -277,7 +277,7 @@ export const logoutUser = async () => {
             );
         });
 
-        // Send email notification to admin about logout
+        // Kirim notifikasi email ke admin tentang logout
         try {
             const currentUser = await getCurrentUser();
             if (currentUser && currentUser.email) {
@@ -287,13 +287,13 @@ export const logoutUser = async () => {
             }
         } catch (emailError) {
             console.warn('Email notification failed:', emailError);
-            // Don't fail logout if email notification fails
+            // Jangan gagalkan logout jika notifikasi email gagal
         }
         
     } catch (error) {
         console.error('Logout error:', error);
         
-        // Show error notification
+        // Tampilkan notifikasi error
         await import('./notifications.js').then(({ showNotification }) => {
             showNotification(
                 'Terjadi kesalahan saat logout. Coba lagi.',
@@ -307,19 +307,19 @@ export const logoutUser = async () => {
 };
 
 // ============================================================================
-// LOADING STATE MANAGEMENT
-// Function: showLoading(show)
-// Purpose: Show/hide loading spinner and disable form buttons
-// Parameters:
-//   - show: Boolean to show (true) or hide (false) loading state
+// MANAJEMEN STATUS LOADING
+// Fungsi: showLoading(show)
+// Tujuan: Tampilkan/sembunyikan loading spinner dan nonaktifkan tombol form
+// Parameter:
+//   - show: Boolean untuk menampilkan (true) atau menyembunyikan (false) status loading
 // ============================================================================
 function showLoading(show) {
-    // Show/hide loading spinner
+    // Tampilkan/sembunyikan loading spinner
     if (loading) {
         loading.style.display = show ? 'flex' : 'none';
     }
     
-    // Disable/enable form buttons during loading
+    // Nonaktifkan/aktifkan tombol form selama loading
     const buttons = document.querySelectorAll('.btn-login, button[type="submit"]');
     buttons.forEach(button => {
         button.disabled = show;
@@ -334,12 +334,12 @@ function showLoading(show) {
 }
 
 // ============================================================================
-// ERROR MESSAGE TRANSLATION
-// Function: getErrorMessage(errorCode)
-// Purpose: Convert Firebase error codes to user-friendly Indonesian messages
-// Parameters:
-//   - errorCode: Firebase error code string
-// Returns: Localized error message in Indonesian
+// TRANSLASI PESAN ERROR
+// Fungsi: getErrorMessage(errorCode)
+// Tujuan: Konversi kode error Firebase menjadi pesan ramah pengguna dalam bahasa Indonesia
+// Parameter:
+//   - errorCode: String kode error Firebase
+// Returns: Pesan error terlokalisasi dalam bahasa Indonesia
 // ============================================================================
 function getErrorMessage(errorCode) {
     const errorMessages = {
@@ -355,26 +355,26 @@ function getErrorMessage(errorCode) {
         'auth/network-request-failed': 'Koneksi jaringan gagal. Periksa koneksi internet Anda.'
     };
     
-    // Return localized message or default message
+    // Kembalikan pesan terlokalisasi atau pesan default
     return errorMessages[errorCode] || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.';
 }
 
 // ============================================================================
-// FORM EVENT LISTENERS
-// Setup event listeners for all authentication forms
+// EVENT LISTENER FORM
+// Setup event listener untuk semua form autentikasi
 // ============================================================================
 
-// LOGIN FORM EVENT LISTENER
-// Handles form submission for user login
+// EVENT LISTENER FORM LOGIN
+// Menangani pengiriman form untuk login pengguna
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); // Mencegah pengiriman form default
         
-        // Get form values
+        // Dapatkan nilai form
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         
-        // Validate form fields
+        // Validasi field form
         if (!email || !password) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -386,24 +386,24 @@ if (loginForm) {
             return;
         }
         
-        // Attempt login
+        // Coba login
         await loginUser(email, password);
     });
 }
 
-// REGISTRATION FORM EVENT LISTENER
-// Handles form submission for new user registration
+// EVENT LISTENER FORM PENDAFTARAN
+// Menangani pengiriman form untuk pendaftaran pengguna baru
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); // Mencegah pengiriman form default
         
-        // Get form values
+        // Dapatkan nilai form
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const displayName = email.split('@')[0]; // Use email prefix as display name
+        const displayName = email.split('@')[0]; // Gunakan prefix email sebagai display name
         
-        // Validate all required fields
+        // Validasi semua field yang diperlukan
         if (!email || !password || !confirmPassword) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -415,7 +415,7 @@ if (registerForm) {
             return;
         }
         
-        // Validate password confirmation
+        // Validasi konfirmasi password
         if (password !== confirmPassword) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -427,7 +427,7 @@ if (registerForm) {
             return;
         }
         
-        // Validate password strength
+        // Validasi kekuatan password
         if (password.length < 6) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -439,21 +439,21 @@ if (registerForm) {
             return;
         }
         
-        // Attempt registration
+        // Coba pendaftaran
         await registerUser(email, password, displayName);
     });
 }
 
-// FORGOT PASSWORD FORM EVENT LISTENER
-// Handles form submission for password reset requests
+// EVENT LISTENER FORM LUPA PASSWORD
+// Menangani pengiriman form untuk permintaan reset password
 if (forgotForm) {
     forgotForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); // Mencegah pengiriman form default
         
-        // Get email value
+        // Dapatkan nilai email
         const email = document.getElementById('resetEmail').value;
         
-        // Validate email field
+        // Validasi field email
         if (!email) {
             await import('./notifications.js').then(({ showNotification }) => {
                 showNotification(
@@ -465,14 +465,14 @@ if (forgotForm) {
             return;
         }
         
-        // Attempt password reset
+        // Coba reset password
         await resetPassword(email);
     });
 }
 
 // ============================================================================
-// AUTO-FILL EMAIL IN FORGOT PASSWORD FORM
-// When user types email in login form, auto-fill in forgot password form
+// AUTO-FILL EMAIL DI FORM LUPA PASSWORD
+// Ketika pengguna mengetik email di form login, auto-fill di form lupa password
 // ============================================================================
 if (document.getElementById('email') && document.getElementById('resetEmail')) {
     document.getElementById('email').addEventListener('input', (e) => {
@@ -481,13 +481,13 @@ if (document.getElementById('email') && document.getElementById('resetEmail')) {
 }
 
 // ============================================================================
-// AUTHENTICATION STATE CHECK ON PAGE LOAD
-// Check if user is already logged in and redirect accordingly
+// PERIKSA STATUS AUTENTIKASI SAAT HALAMAN DIMUAT
+// Periksa apakah pengguna sudah login dan redirect sesuai
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Check current authentication state
+    // Periksa status autentikasi saat ini
     checkAuthState((user) => {
-        // If user is logged in and on login page, redirect to dashboard
+        // Jika pengguna sudah login dan di halaman login, redirect ke dashboard
         if (user && window.location.pathname.endsWith('index.html')) {
             window.location.href = 'dashboard.html';
         }

@@ -1,40 +1,40 @@
 // ============================================================================
-// NOTIFICATION SYSTEM
+// SISTEM NOTIFIKASI
 // File: js/notifications.js
-// Description: Complete notification system with toast and browser notifications
-// Features: Success, Error, Warning, Info notifications with animations
-// Includes: Browser notifications, Auto-dismiss, Manual close, Multiple notifications
+// Description: Sistem notifikasi lengkap dengan toast dan notifikasi browser
+// Features: Notifikasi Sukses, Error, Peringatan, Info dengan animasi
+// Includes: Notifikasi browser, Auto-dismiss, Tutup manual, Multiple notifications
 // ============================================================================
 
 // ============================================================================
-// GLOBAL VARIABLES
+// VARIABEL GLOBAL
 // ============================================================================
 
-// Counter for generating unique notification IDs
+// Counter untuk menghasilkan ID notifikasi unik
 let notificationCounter = 0;
 
 // ============================================================================
-// NOTIFICATION TYPE CONFIGURATIONS
-// Each notification type has its own styling, icons, timing, and messages
+// KONFIGURASI JENIS NOTIFIKASI
+// Setiap jenis notifikasi memiliki styling, ikon, timing, dan pesan sendiri
 // ============================================================================
 const NOTIFICATION_TYPES = {
-    // SUCCESS NOTIFICATION: For successful operations (login, register, etc.)
+    // NOTIFIKASI SUKSES: Untuk operasi berhasil (login, register, dll)
     success: {
-        icon: 'fas fa-check-circle',           // FontAwesome icon
-        defaultTitle: 'Berhasil!',             // Default title in Indonesian
-        defaultMessage: 'Operasi berhasil dilakukan.', // Default message
-        duration: 5000                         // Auto-dismiss after 5 seconds
+        icon: 'fas fa-check-circle',           // Ikon FontAwesome
+        defaultTitle: 'Berhasil!',             // Judul default dalam bahasa Indonesia
+        defaultMessage: 'Operasi berhasil dilakukan.', // Pesan default
+        duration: 5000                         // Auto-dismiss setelah 5 detik
     },
     
-    // ERROR NOTIFICATION: For failed operations or errors
+    // NOTIFIKASI ERROR: Untuk operasi gagal atau error
     error: {
         icon: 'fas fa-exclamation-circle',
         defaultTitle: 'Gagal!',
         defaultMessage: 'Terjadi kesalahan saat memproses.',
-        duration: 7000                         // Stay longer for error messages
+        duration: 7000                         // Stay longer untuk pesan error
     },
     
-    // WARNING NOTIFICATION: For validation errors or warnings
+    // NOTIFIKASI PERINGATAN: Untuk error validasi atau peringatan
     warning: {
         icon: 'fas fa-exclamation-triangle',
         defaultTitle: 'Peringatan!',
@@ -42,88 +42,88 @@ const NOTIFICATION_TYPES = {
         duration: 6000
     },
     
-    // INFO NOTIFICATION: For general information messages
+    // NOTIFIKASI INFO: Untuk pesan informasi umum
     info: {
         icon: 'fas fa-info-circle',
         defaultTitle: 'Informasi',
         defaultMessage: 'Ini adalah pesan informasi.',
-        duration: 4000                         // Shorter duration for info
+        duration: 4000                         // Durasi lebih pendek untuk info
     }
 };
 
 // ============================================================================
-// MAIN NOTIFICATION FUNCTION
-// Function: showNotification(message, type, title, duration)
-// Purpose: Display a notification with specified parameters
-// Parameters:
-//   - message: The notification message content
-//   - type: Notification type (success, error, warning, info)
-//   - title: Custom title (optional, uses default if null)
-//   - duration: Custom duration in milliseconds (optional)
-// Returns: DOM element of the created notification
+// FUNGSI NOTIFIKASI UTAMA
+// Fungsi: showNotification(message, type, title, duration)
+// Tujuan: Tampilkan notifikasi dengan parameter yang ditentukan
+// Parameter:
+//   - message: Konten pesan notifikasi
+//   - type: Jenis notifikasi (success, error, warning, info)
+//   - title: Judul kustom (opsional, gunakan default jika null)
+//   - duration: Durasi kustom dalam milidetik (opsional)
+// Returns: Elemen DOM dari notifikasi yang dibuat
 // ============================================================================
 export const showNotification = async (message, type = 'info', title = null, duration = null) => {
-    // Get configuration for the specified notification type
+    // Dapatkan konfigurasi untuk jenis notifikasi yang ditentukan
     const config = NOTIFICATION_TYPES[type] || NOTIFICATION_TYPES.info;
     
-    // Use provided title or default title from config
+    // Gunakan judul yang disediakan atau judul default dari konfigurasi
     const notificationTitle = title || config.defaultTitle;
     
-    // Use provided duration or default duration from config
+    // Gunakan durasi yang disediakan atau durasi default dari konfigurasi
     const notificationDuration = duration || config.duration;
     
-    // Create the notification DOM element
+    // Buat elemen DOM notifikasi
     const notification = createNotificationElement(message, type, notificationTitle, config.icon);
     
-    // Get the notification container and add the new notification
+    // Dapatkan container notifikasi dan tambahkan notifikasi baru
     const container = getNotificationContainer();
     container.appendChild(notification);
     
-    // Show notification with slide-in animation
-    // Small delay to allow DOM to update before animation
+    // Tampilkan notifikasi dengan animasi slide-in
+    // Delay kecil untuk memungkinkan DOM update sebelum animasi
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
     
-    // Auto-dismiss notification after specified duration
+    // Auto-dismiss notifikasi setelah durasi yang ditentukan
     if (notificationDuration > 0) {
         setTimeout(() => {
             removeNotification(notification);
         }, notificationDuration);
     }
     
-    // Request browser notification permission and show if granted
+    // Minta izin notifikasi browser dan tampilkan jika diberikan
     await requestNotificationPermission();
     if (Notification.permission === 'granted') {
         showBrowserNotification(notificationTitle, message, type);
     }
     
-    // Return the notification element for further manipulation if needed
+    // Kembalikan elemen notifikasi untuk manipulasi lebih lanjut jika diperlukan
     return notification;
 };
 
 // ============================================================================
-// CREATE NOTIFICATION DOM ELEMENT
-// Function: createNotificationElement(message, type, title, icon)
-// Purpose: Create the HTML structure for a notification
-// Parameters:
-//   - message: Notification message content
-//   - type: Notification type for styling
-//   - title: Notification title
-//   - icon: FontAwesome icon class
-// Returns: DOM element of the notification
+// BUAT ELEMEN DOM NOTIFIKASI
+// Fungsi: createNotificationElement(message, type, title, icon)
+// Tujuan: Buat struktur HTML untuk sebuah notifikasi
+// Parameter:
+//   - message: Konten pesan notifikasi
+//   - type: Jenis notifikasi untuk styling
+//   - title: Judul notifikasi
+//   - icon: Kelas ikon FontAwesome
+// Returns: Elemen DOM dari notifikasi
 // ============================================================================
 function createNotificationElement(message, type, title, icon) {
-    // Create main notification div element
+    // Buat elemen div utama notifikasi
     const notification = document.createElement('div');
     
-    // Add CSS classes for styling and type
+    // Tambahkan kelas CSS untuk styling dan tipe
     notification.className = `notification ${type}`;
     
-    // Generate unique ID for this notification
+    // Buat ID unik untuk notifikasi ini
     notification.id = `notification-${++notificationCounter}`;
     
-    // Build the HTML structure inside the notification
+    // Bangun struktur HTML di dalam notifikasi
     notification.innerHTML = `
         <div class="notification-icon">
             <i class="${icon}"></i>
@@ -137,8 +137,8 @@ function createNotificationElement(message, type, title, icon) {
         </button>
     `;
     
-    // Add click-to-dismiss functionality
-    // Click anywhere on notification (except close button) to dismiss
+    // Tambahkan fungsionalitas click-to-dismiss
+    // Klik di mana saja pada notifikasi (kecuali tombol close) untuk dismiss
     notification.addEventListener('click', (e) => {
         if (!e.target.closest('.notification-close')) {
             removeNotification(notification);
@@ -149,20 +149,20 @@ function createNotificationElement(message, type, title, icon) {
 }
 
 // ============================================================================
-// REMOVE NOTIFICATION WITH ANIMATION
-// Function: removeNotification(notification)
-// Purpose: Remove notification from DOM with smooth fade-out animation
-// Parameters:
-//   - notification: DOM element of the notification to remove
+// HAPUS NOTIFIKASI DENGAN ANIMASI
+// Fungsi: removeNotification(notification)
+// Tujuan: Hapus notifikasi dari DOM dengan animasi fade-out yang halus
+// Parameter:
+//   - notification: Elemen DOM notifikasi yang akan dihapus
 // ============================================================================
 function removeNotification(notification) {
-    // Check if notification exists and is still in DOM
+    // Periksa apakah notifikasi ada dan masih di DOM
     if (!notification || !notification.parentNode) return;
     
-    // Remove 'show' class to trigger fade-out animation
+    // Hapus kelas 'show' untuk memicu animasi fade-out
     notification.classList.remove('show');
     
-    // Wait for animation to complete (300ms) before removing from DOM
+    // Tunggu hingga animasi selesai (300ms) sebelum menghapus dari DOM
     setTimeout(() => {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
@@ -171,23 +171,23 @@ function removeNotification(notification) {
 }
 
 // ============================================================================
-// GET OR CREATE NOTIFICATION CONTAINER
-// Function: getNotificationContainer()
-// Purpose: Get the container div where notifications are displayed
-// Creates container if it doesn't exist
-// Returns: DOM element of the notification container
+// DAPATKAN ATAU BUAT CONTAINER NOTIFIKASI
+// Fungsi: getNotificationContainer()
+// Tujuan: Dapatkan div container di mana notifikasi ditampilkan
+// Buat container jika belum ada
+// Returns: Elemen DOM dari container notifikasi
 // ============================================================================
 function getNotificationContainer() {
-    // Try to find existing notification container
+    // Coba cari container notifikasi yang sudah ada
     let container = document.getElementById('notificationContainer');
     
-    // Create container if it doesn't exist
+    // Buat container jika belum ada
     if (!container) {
         container = document.createElement('div');
         container.id = 'notificationContainer';
         container.className = 'notification-container';
         
-        // Add container to body (end of document)
+        // Tambahkan container ke body (akhir dokumen)
         document.body.appendChild(container);
     }
     
@@ -195,34 +195,34 @@ function getNotificationContainer() {
 }
 
 // ============================================================================
-// CLOSE NOTIFICATION BY ID (GLOBAL FUNCTION)
-// Function: closeNotification(notificationId)
-// Purpose: Global function to close specific notification by ID
-// This is called from onclick attribute in the HTML
-// Parameters:
-//   - notificationId: ID of the notification to close
+// TUTUP NOTIFIKASI BERDASARKAN ID (FUNGSI GLOBAL)
+// Fungsi: closeNotification(notificationId)
+// Tujuan: Fungsi global untuk menutup notifikasi tertentu berdasarkan ID
+// Ini dipanggil dari atribut onclick dalam HTML
+// Parameter:
+//   - notificationId: ID dari notifikasi yang akan ditutup
 // ============================================================================
 window.closeNotification = function(notificationId) {
-    // Find notification by ID
+    // Cari notifikasi berdasarkan ID
     const notification = document.getElementById(notificationId);
     
-    // Remove notification if found
+    // Hapus notifikasi jika ditemukan
     if (notification) {
         removeNotification(notification);
     }
 };
 
 // ============================================================================
-// REQUEST NOTIFICATION PERMISSION
-// Function: requestNotificationPermission()
-// Purpose: Ask user for browser notification permission
-// Returns: Promise that resolves to boolean (permission granted or not)
+// MINTA IZIN NOTIFIKASI
+// Fungsi: requestNotificationPermission()
+// Tujuan: Minta izin pengguna untuk notifikasi browser
+// Returns: Promise yang resolve ke boolean (izin diberikan atau tidak)
 // ============================================================================
 async function requestNotificationPermission() {
-    // Check if browser supports notifications
+    // Periksa apakah browser mendukung notifikasi
     if ('Notification' in window && Notification.permission === 'default') {
         try {
-            // Request permission from user
+            // Minta izin dari pengguna
             const permission = await Notification.requestPermission();
             return permission === 'granted';
         } catch (error) {
@@ -230,25 +230,25 @@ async function requestNotificationPermission() {
             return false;
         }
     }
-    // Return current permission status
+    // Kembalikan status izin saat ini
     return Notification.permission === 'granted';
 }
 
 // ============================================================================
-// SHOW BROWSER NOTIFICATION
-// Function: showBrowserNotification(title, message, type)
-// Purpose: Display native browser notification (if permission granted)
-// Parameters:
-//   - title: Notification title
-//   - message: Notification message
-//   - type: Notification type for icon selection
+// TAMPILKAN NOTIFIKASI BROWSER
+// Fungsi: showBrowserNotification(title, message, type)
+// Tujuan: Tampilkan notifikasi browser asli (jika izin diberikan)
+// Parameter:
+//   - title: Judul notifikasi
+//   - message: Pesan notifikasi
+//   - type: Jenis notifikasi untuk pemilihan ikon
 // ============================================================================
 function showBrowserNotification(title, message, type) {
     try {
-        // Get configuration for notification type
+        // Dapatkan konfigurasi untuk jenis notifikasi
         const config = NOTIFICATION_TYPES[type] || NOTIFICATION_TYPES.info;
         
-        // Map notification types to emoji icons
+        // Map jenis notifikasi ke ikon emoji
         const iconMap = {
             success: '🟢',
             error: '🔴',
@@ -256,25 +256,25 @@ function showBrowserNotification(title, message, type) {
             info: '🔵'
         };
         
-        // Create new browser notification
+        // Buat notifikasi browser baru
         const notification = new Notification(title, {
-            body: message,                                          // Notification body text
-            icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${iconMap[type] || iconMap.info}</text></svg>`, // Custom icon
-            badge: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>`, // Notification badge
-            tag: 'firebase-auth',                                   // Group notifications
+            body: message,                                          // Teks body notifikasi
+            icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${iconMap[type] || iconMap.info}</text></svg>`, // Ikon kustom
+            badge: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>`, // Badge notifikasi
+            tag: 'firebase-auth',                                   // Group notifikasi
             requireInteraction: false,                             // Allow auto-dismiss
-            silent: false                                          // Play notification sound
+            silent: false                                          // Mainkan suara notifikasi
         });
         
-        // Auto-close browser notification after 5 seconds
+        // Auto-close notifikasi browser setelah 5 detik
         setTimeout(() => {
             notification.close();
         }, 5000);
         
-        // Handle notification click - focus window and close notification
+        // Tangani klik notifikasi - fokus window dan tutup notifikasi
         notification.onclick = () => {
-            window.focus();     // Bring browser window to front
-            notification.close(); // Close the notification
+            window.focus();     // Bawa browser window ke depan
+            notification.close(); // Tutup notifikasi
         };
         
     } catch (error) {
@@ -283,16 +283,16 @@ function showBrowserNotification(title, message, type) {
 }
 
 // ============================================================================
-// SHOW MULTIPLE NOTIFICATIONS
-// Function: showMultipleNotifications(notifications)
-// Purpose: Display multiple notifications with delays between them
-// Parameters:
-//   - notifications: Array of notification objects with message, type, title, duration
+// TAMPILKAN MULTIPLE NOTIFIKASI
+// Fungsi: showMultipleNotifications(notifications)
+// Tujuan: Tampilkan multiple notifikasi dengan delay di antara mereka
+// Parameter:
+//   - notifications: Array objek notifikasi dengan message, type, title, duration
 // ============================================================================
 export const showMultipleNotifications = async (notifications) => {
-    // Loop through each notification in the array
+    // Loop melalui setiap notifikasi dalam array
     for (const notification of notifications) {
-        // Show current notification
+        // Tampilkan notifikasi saat ini
         await showNotification(
             notification.message,
             notification.type,
@@ -300,39 +300,39 @@ export const showMultipleNotifications = async (notifications) => {
             notification.duration
         );
         
-        // Add small delay (300ms) between notifications
+        // Tambahkan delay kecil (300ms) di antara notifikasi
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 };
 
 // ============================================================================
-// CLEAR ALL NOTIFICATIONS
-// Function: clearAllNotifications()
-// Purpose: Remove all active notifications from the screen
+// HAPUS SEMUA NOTIFIKASI
+// Fungsi: clearAllNotifications()
+// Tujuan: Hapus semua notifikasi aktif dari layar
 // ============================================================================
 export const clearAllNotifications = () => {
-    // Get notification container
+    // Dapatkan container notifikasi
     const container = getNotificationContainer();
     
-    // Find all notification elements
+    // Temukan semua elemen notifikasi
     const notifications = container.querySelectorAll('.notification');
     
-    // Remove each notification
+    // Hapus setiap notifikasi
     notifications.forEach(notification => {
         removeNotification(notification);
     });
 };
 
 // ============================================================================
-// SPECIALIZED NOTIFICATION FUNCTIONS
-// Pre-configured notifications for common use cases
+// FUNGSI NOTIFIKASI TERSPESIALISASI
+// Notifikasi yang dikonfigurasi sebelumnya untuk use case umum
 // ============================================================================
 
 /**
- * Show success notification for login
- * Function: showLoginSuccess(user)
- * Purpose: Display welcome message after successful login
- * Parameters: user - Firebase user object
+ * Tampilkan notifikasi sukses untuk login
+ * Fungsi: showLoginSuccess(user)
+ * Tujuan: Tampilkan pesan selamat datang setelah login berhasil
+ * Parameter: user - Objek pengguna Firebase
  */
 export const showLoginSuccess = async (user) => {
     const userName = user.displayName || user.email.split('@')[0];
@@ -347,10 +347,10 @@ export const showLoginSuccess = async (user) => {
 };
 
 /**
- * Show registration success notification
- * Function: showRegistrationSuccess(user)
- * Purpose: Display welcome message after successful registration
- * Parameters: user - Firebase user object
+ * Tampilkan notifikasi sukses pendaftaran
+ * Fungsi: showRegistrationSuccess(user)
+ * Tujuan: Tampilkan pesan selamat datang setelah pendaftaran berhasil
+ * Parameter: user - Objek pengguna Firebase
  */
 export const showRegistrationSuccess = async (user) => {
     const userName = user.displayName || user.email.split('@')[0];
@@ -365,10 +365,10 @@ export const showRegistrationSuccess = async (user) => {
 };
 
 /**
- * Show password reset success notification
- * Function: showPasswordResetSuccess(email)
- * Purpose: Display message after password reset email is sent
- * Parameters: email - User's email address
+ * Tampilkan notifikasi sukses reset password
+ * Fungsi: showPasswordResetSuccess(email)
+ * Tujuan: Tampilkan pesan setelah email reset password dikirim
+ * Parameter: email - Alamat email pengguna
  */
 export const showPasswordResetSuccess = async (email) => {
     await showNotification(
@@ -380,9 +380,9 @@ export const showPasswordResetSuccess = async (email) => {
 };
 
 /**
- * Show logout success notification
- * Function: showLogoutSuccess()
- * Purpose: Display goodbye message after successful logout
+ * Tampilkan notifikasi sukses logout
+ * Fungsi: showLogoutSuccess()
+ * Tujuan: Tampilkan pesan selamat tinggal setelah logout berhasil
  */
 export const showLogoutSuccess = async () => {
     await showNotification(
@@ -394,10 +394,10 @@ export const showLogoutSuccess = async () => {
 };
 
 /**
- * Show welcome notification for new users
- * Function: showWelcomeNotification(user)
- * Purpose: Display welcome message for new user accounts
- * Parameters: user - Firebase user object
+ * Tampilkan notifikasi selamat datang untuk pengguna baru
+ * Fungsi: showWelcomeNotification(user)
+ * Tujuan: Tampilkan pesan selamat datang untuk akun pengguna baru
+ * Parameter: user - Objek pengguna Firebase
  */
 export const showWelcomeNotification = async (user) => {
     const userName = user.displayName || user.email.split('@')[0];
@@ -412,21 +412,21 @@ export const showWelcomeNotification = async (user) => {
 };
 
 /**
- * Show loading notification
- * Function: showLoadingNotification(message)
- * Purpose: Display persistent notification during processing
- * Parameters: message - Loading message text (optional)
- * Returns: Notification element that can be updated/hidden later
+ * Tampilkan notifikasi loading
+ * Fungsi: showLoadingNotification(message)
+ * Tujuan: Tampilkan notifikasi persisten selama pemrosesan
+ * Parameter: message - Teks pesan loading (opsional)
+ * Returns: Elemen notifikasi yang bisa diupdate/disembunyikan nanti
  */
 export const showLoadingNotification = async (message = 'Memproses...') => {
     const notification = await showNotification(
         message,
         'info',
         'Memproses...',
-        0 // Don't auto-dismiss loading notifications
+        0 // Jangan auto-dismiss notifikasi loading
     );
     
-    // Add loading spinner animation to the icon
+    // Tambahkan animasi loading spinner ke ikon
     const icon = notification.querySelector('.notification-icon i');
     icon.className = 'fas fa-spinner fa-spin';
     
@@ -434,17 +434,17 @@ export const showLoadingNotification = async (message = 'Memproses...') => {
 };
 
 /**
- * Update loading notification message
- * Function: updateLoadingNotification(notification, message)
- * Purpose: Update the message of an existing loading notification
- * Parameters:
- *   - notification: Notification element to update
- *   - message: New message text
+ * Update notifikasi loading
+ * Fungsi: updateLoadingNotification(notification, message)
+ * Tujuan: Update pesan notifikasi loading yang ada
+ * Parameter:
+ *   - notification: Elemen notifikasi untuk diupdate
+ *   - message: Teks pesan baru
  */
 export const updateLoadingNotification = (notification, message) => {
-    // Check if notification exists and is still visible
+    // Periksa apakah notifikasi ada dan masih terlihat
     if (notification && notification.parentNode) {
-        // Find and update the message element
+        // Temukan dan update elemen pesan
         const messageElement = notification.querySelector('.notification-message');
         if (messageElement) {
             messageElement.textContent = message;
@@ -453,42 +453,42 @@ export const updateLoadingNotification = (notification, message) => {
 };
 
 /**
- * Hide loading notification
- * Function: hideLoadingNotification(notification)
- * Purpose: Remove a loading notification
- * Parameters: notification - Notification element to hide
+ * Sembunyikan notifikasi loading
+ * Fungsi: hideLoadingNotification(notification)
+ * Tujuan: Hapus notifikasi loading
+ * Parameter: notification - Elemen notifikasi untuk disembunyikan
  */
 export const hideLoadingNotification = (notification) => {
-    // Simply remove the notification
+    // Simplemente hapus notifikasi
     if (notification) {
         removeNotification(notification);
     }
 };
 
 // ============================================================================
-// UTILITY FUNCTIONS
-// Helper functions for checking notification capabilities
+// FUNGSI UTILITAS
+// Fungsi helper untuk memeriksa kemampuan notifikasi
 // ============================================================================
 
 /**
- * Check if notifications are supported by the browser
- * Function: isNotificationSupported()
- * Returns: Boolean indicating browser notification support
+ * Periksa apakah notifikasi didukung oleh browser
+ * Fungsi: isNotificationSupported()
+ * Returns: Boolean yang menunjukkan dukungan notifikasi browser
  */
 export const isNotificationSupported = () => {
     return 'Notification' in window;
 };
 
 /**
- * Get current notification permission status
- * Function: getNotificationPermission()
- * Returns: String indicating permission status ('granted', 'denied', 'default', 'unsupported')
+ * Dapatkan status izin notifikasi saat ini
+ * Fungsi: getNotificationPermission()
+ * Returns: String yang menunjukkan status izin ('granted', 'denied', 'default', 'unsupported')
  */
 export const getNotificationPermission = () => {
-    // Return 'unsupported' if browser doesn't support notifications
+    // Kembalikan 'unsupported' jika browser tidak mendukung notifikasi
     if (!isNotificationSupported()) {
         return 'unsupported';
     }
-    // Return current permission status
+    // Kembalikan status izin saat ini
     return Notification.permission;
 };

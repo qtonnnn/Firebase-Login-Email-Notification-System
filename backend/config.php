@@ -1,34 +1,34 @@
 <?php
 // ============================================================================
-// EMAIL CONFIGURATION SETTINGS
+// PENGATURAN KONFIGURASI EMAIL
 // File: backend/config.php
-// Description: Central configuration file for Firebase Login Email System
-// Purpose: Store all SMTP, database, security, and email settings
-// IMPORTANT: Replace placeholder values with your actual configuration
+// Description: File konfigurasi pusat untuk Sistem Email Firebase Login
+// Tujuan: Menyimpan semua pengaturan SMTP, database, keamanan, dan email
+// IMPORTANT: Ganti nilai placeholder dengan konfigurasi aktual Anda
 // ============================================================================
 
 // ============================================================================
-// SMTP EMAIL CONFIGURATION
-// Configure SMTP settings for sending emails via PHPMailer
-// These settings determine which email service will be used for sending notifications
+// KONFIGURASI EMAIL SMTP
+// Konfigurasi pengaturan SMTP untuk pengiriman email via PHPMailer
+// Pengaturan ini menentukan layanan email mana yang akan digunakan untuk pengiriman notifikasi
 // ============================================================================
 
-// Gmail SMTP Configuration (Recommended for testing and development)
-// For production, consider using a dedicated email service provider
-define('SMTP_HOST', 'smtp.gmail.com');          // SMTP server hostname for Gmail
-define('SMTP_PORT', 587);                       // SMTP port (587 for TLS, 465 for SSL)
-define('SMTP_USERNAME', 'your-email@gmail.com'); // Your Gmail address (REPLACE THIS)
-define('SMTP_PASSWORD', 'your-app-password');    // Gmail App Password (REPLACE THIS)
-define('SMTP_FROM_EMAIL', 'your-email@gmail.com'); // From email address (REPLACE THIS)
-define('SMTP_FROM_NAME', 'Firebase Login System');   // Display name for emails
+// Konfigurasi Gmail SMTP (Direkomendasikan untuk testing dan development)
+// Untuk production, pertimbangkan untuk menggunakan penyedia layanan email dedicated
+define('SMTP_HOST', 'smtp.gmail.com');          // Hostname server SMTP untuk Gmail
+define('SMTP_PORT', 587);                       // Port SMTP (587 untuk TLS, 465 untuk SSL)
+define('SMTP_USERNAME', 'your-email@gmail.com'); // Alamat Gmail Anda (GANTI INI)
+define('SMTP_PASSWORD', 'your-app-password');    // Gmail App Password (GANTI INI)
+define('SMTP_FROM_EMAIL', 'your-email@gmail.com'); // Alamat email pengirim (GANTI INI)
+define('SMTP_FROM_NAME', 'Firebase Login System');   // Nama tampilan untuk email
 
 // ============================================================================
-// ALTERNATIVE SMTP PROVIDERS
-// Uncomment and modify the section below for other email providers
+// PENYEDIA SMTP ALTERNATIF
+// Uncomment dan modifikasi bagian di bawah untuk penyedia email lain
 // ============================================================================
 
 /*
-// Outlook/Hotmail SMTP Configuration
+// Konfigurasi SMTP Outlook/Hotmail
 define('SMTP_HOST', 'smtp-mail.outlook.com');
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'your-email@outlook.com');
@@ -36,7 +36,7 @@ define('SMTP_PASSWORD', 'your-password');
 define('SMTP_FROM_EMAIL', 'your-email@outlook.com');
 define('SMTP_FROM_NAME', 'Firebase Login System');
 
-// Yahoo Mail SMTP Configuration
+// Konfigurasi SMTP Yahoo Mail
 define('SMTP_HOST', 'smtp.mail.yahoo.com');
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'your-email@yahoo.com');
@@ -44,9 +44,9 @@ define('SMTP_PASSWORD', 'your-app-password');
 define('SMTP_FROM_EMAIL', 'your-email@yahoo.com');
 define('SMTP_FROM_NAME', 'Firebase Login System');
 
-// Custom SMTP Server Configuration
+// Konfigurasi Server SMTP Kustom
 define('SMTP_HOST', 'your-smtp-server.com');
-define('SMTP_PORT', 587); // or 465 for SSL
+define('SMTP_PORT', 587); // atau 465 untuk SSL
 define('SMTP_USERNAME', 'your-smtp-username');
 define('SMTP_PASSWORD', 'your-smtp-password');
 define('SMTP_FROM_EMAIL', 'your-email@domain.com');
@@ -54,152 +54,152 @@ define('SMTP_FROM_NAME', 'Firebase Login System');
 */
 
 // ============================================================================
-// EMAIL SYSTEM CONTROL SETTINGS
-// Settings to control email functionality for development and testing
+// PENGATURAN KONTROL SISTEM EMAIL
+// Pengaturan untuk mengontrol fungsionalitas email untuk development dan testing
 // ============================================================================
 
-// Enable or disable email sending globally
-// true: Send actual emails (production mode)
-// false: Disable email sending (testing mode)
+// Aktifkan atau nonaktifkan pengiriman email secara global
+// true: Kirim email aktual (mode production)
+// false: Nonaktifkan pengiriman email (mode testing)
 define('ENABLE_EMAIL', true);
 
-// Email logging instead of sending
-// true: Log emails to file instead of sending (for testing)
-// false: Send actual emails
+// Email logging sebagai ganti pengiriman
+// true: Log email ke file sebagai ganti pengiriman (untuk testing)
+// false: Kirim email aktual
 define('LOG_EMAIL', true);
 
 // ============================================================================
-// DATABASE CONFIGURATION
-// Database settings for storing user data and email logs (optional)
-// Configure only if you want to store email logs or user activity
+// KONFIGURASI DATABASE
+// Pengaturan database untuk menyimpan data pengguna dan log email (opsional)
+// Konfigurasi hanya jika Anda ingin menyimpan log email atau aktivitas pengguna
 // ============================================================================
 
-// Database connection settings
-define('DB_HOST', 'localhost');     // Database server hostname
-define('DB_NAME', 'firebase_login'); // Database name
-define('DB_USER', 'root');          // Database username
-define('DB_PASS', '');              // Database password
+// Pengaturan koneksi database
+define('DB_HOST', 'localhost');     // Hostname server database
+define('DB_NAME', 'firebase_login'); // Nama database
+define('DB_USER', 'root');          // Username database
+define('DB_PASS', '');              // Password database
 
 // ============================================================================
-// SECURITY CONFIGURATION
-// Security settings for API protection and JWT tokens
-// IMPORTANT: Change these values in production for security
+// KONFIGURASI KEAMANAN
+// Pengaturan keamanan untuk perlindungan API dan token JWT
+// IMPORTANT: Ubah nilai-nilai ini di production untuk keamanan
 // ============================================================================
 
-// JWT Secret Key for token generation and validation
-// IMPORTANT: Replace with a strong, unique secret key in production
+// Secret Key JWT untuk pembuatan dan validasi token
+// IMPORTANT: Ganti dengan secret key yang kuat dan unik di production
 define('JWT_SECRET', 'your-jwt-secret-key-here');
 
-// API Rate Limiting - Maximum requests per hour per IP
-// Prevents abuse and DoS attacks
-define('API_RATE_LIMIT', 100); // 100 requests per hour
+// API Rate Limiting - Maksimal request per jam per IP
+// Mencegah penyalahgunaan dan serangan DoS
+define('API_RATE_LIMIT', 100); // 100 request per jam
 
 // ============================================================================
-// EMAIL RATE LIMITING
-// Settings to prevent email spam and control email sending frequency
+// PEMBATASAN RATE EMAIL
+// Pengaturan untuk mencegah spam email dan mengontrol frekuensi pengiriman email
 // ============================================================================
 
-// Maximum number of emails that can be sent per hour
-// Prevents spam and protects your SMTP provider
+// Maksimal jumlah email yang dapat dikirim per jam
+// Mencegah spam dan melindungi penyedia SMTP Anda
 define('MAX_EMAIL_PER_HOUR', 50);
 
-// Cooldown period between emails (in seconds)
-// Prevents rapid-fire email sending
-define('EMAIL_COOLDOWN', 60); // 60 seconds (1 minute) between emails
+// Periode cooldown antar email (dalam detik)
+// Mencegah pengiriman email yang cepat beruntun
+define('EMAIL_COOLDOWN', 60); // 60 detik (1 menit) antar email
 
 // ============================================================================
-// LOGGING CONFIGURATION
-// Settings for logging email activity and system events
+// KONFIGURASI LOGGING
+// Pengaturan untuk logging aktivitas email dan event sistem
 // ============================================================================
 
-// Log file path for email activity
-// Emails will be logged here instead of being sent (when LOG_EMAIL = true)
-// The directory will be created automatically if it doesn't exist
+// Path file log untuk aktivitas email
+// Email akan dilog di sini sebagai ganti pengiriman (ketika LOG_EMAIL = true)
+// Direktori akan dibuat otomatis jika belum ada
 define('LOG_FILE', __DIR__ . '/logs/email_log.txt');
 
-// Log file for general system activity
+// File log untuk aktivitas sistem umum
 define('SYSTEM_LOG', __DIR__ . '/logs/system_log.txt');
 
-// Log file for error tracking
+// File log untuk pelacakan error
 define('ERROR_LOG', __DIR__ . '/logs/error_log.txt');
 
 // ============================================================================
-// DIRECTORY SETUP
-// Create necessary directories for logging and temporary files
+// SETUP DIREKTORI
+// Buat direktori yang diperlukan untuk logging dan file temporary
 // ============================================================================
 
-// Create logs directory if it doesn't exist
+// Buat direktori logs jika belum ada
 if (!file_exists(__DIR__ . '/logs')) {
-    // Create directory with proper permissions
+    // Buat direktori dengan permission yang tepat
     // 0755 = rwxr-xr-x (owner: read/write/execute, group/others: read/execute)
     mkdir(__DIR__ . '/logs', 0755, true);
 }
 
-// Create temp directory for temporary files if needed
+// Buat direktori temp untuk file temporary jika diperlukan
 if (!file_exists(__DIR__ . '/temp')) {
     mkdir(__DIR__ . '/temp', 0755, true);
 }
 
 // ============================================================================
-// ADDITIONAL CONFIGURATION OPTIONS
-// Optional settings for enhanced functionality
+// OPSI KONFIGURASI TAMBAHAN
+// Pengaturan opsional untuk fungsionalitas yang ditingkatkan
 // ============================================================================
 
-// Email retry settings
-define('EMAIL_MAX_RETRIES', 3);        // Maximum retry attempts for failed emails
-define('EMAIL_RETRY_DELAY', 5);        // Delay between retries (seconds)
+// Pengaturan retry email
+define('EMAIL_MAX_RETRIES', 3);        // Maksimal percobaan retry untuk email gagal
+define('EMAIL_RETRY_DELAY', 5);        // Delay antar retry (detik)
 
-// Debug mode
-define('DEBUG_MODE', false);           // Set to true for detailed error messages
-define('VERBOSE_LOGGING', false);      // Set to true for detailed logging
+// Mode debug
+define('DEBUG_MODE', false);           // Set ke true untuk pesan error detail
+define('VERBOSE_LOGGING', false);      // Set ke true untuk logging detail
 
-// Email queue settings (for future enhancement)
-define('EMAIL_QUEUE_ENABLED', false);  // Enable email queuing system
-define('QUEUE_CHECK_INTERVAL', 30);    // Check queue every 30 seconds
+// Pengaturan queue email (untuk enhancement masa depan)
+define('EMAIL_QUEUE_ENABLED', false);  // Aktifkan sistem queue email
+define('QUEUE_CHECK_INTERVAL', 30);    // Periksa queue setiap 30 detik
 
-// Backup email service (for failover)
-define('BACKUP_SMTP_HOST', '');        // Backup SMTP server (optional)
-define('BACKUP_SMTP_PORT', 587);       // Backup SMTP port
-define('USE_BACKUP_ON_FAILURE', false); // Use backup server if primary fails
+// Layanan email backup (untuk failover)
+define('BACKUP_SMTP_HOST', '');        // Server SMTP backup (opsional)
+define('BACKUP_SMTP_PORT', 587);       // Port SMTP backup
+define('USE_BACKUP_ON_FAILURE', false); // Gunakan server backup jika primer gagal
 
 // ============================================================================
-// TIMEZONE SETTING
-// Set timezone for timestamp accuracy in logs and emails
+// PENGATURAN TIMEZONE
+// Set timezone untuk akurasi timestamp di log dan email
 // ============================================================================
 
-// Set timezone to Indonesia (Jakarta)
-// Change this to match your server's timezone
+// Set timezone ke Indonesia (Jakarta)
+// Ubah ini untuk mencocokkan timezone server Anda
 date_default_timezone_set('Asia/Jakarta');
 
-// Alternative timezones you might want to use:
+// Timezone alternatif yang mungkin ingin Anda gunakan:
 // date_default_timezone_set('UTC');           // Coordinated Universal Time
 // date_default_timezone_set('America/New_York'); // Eastern Time
 // date_default_timezone_set('Europe/London');    // Greenwich Mean Time
 
 // ============================================================================
-// HELPER FUNCTIONS
-// Utility functions for configuration management
+// FUNGSI HELPER
+// Fungsi utilitas untuk manajemen konfigurasi
 // ============================================================================
 
 /**
- * Check if email sending is enabled
- * Returns: boolean - true if emails should be sent
+ * Periksa apakah pengiriman email diaktifkan
+ * Returns: boolean - true jika email harus dikirim
  */
 function isEmailEnabled() {
     return defined('ENABLE_EMAIL') && ENABLE_EMAIL;
 }
 
 /**
- * Check if email logging is enabled
- * Returns: boolean - true if emails should be logged instead of sent
+ * Periksa apakah email logging diaktifkan
+ * Returns: boolean - true jika email harus dilog sebagai ganti dikirim
  */
 function isEmailLoggingEnabled() {
     return defined('LOG_EMAIL') && LOG_EMAIL;
 }
 
 /**
- * Get SMTP configuration as array
- * Returns: array with SMTP settings
+ * Dapatkan konfigurasi SMTP sebagai array
+ * Returns: array dengan pengaturan SMTP
  */
 function getSMTPConfig() {
     return [
@@ -213,8 +213,8 @@ function getSMTPConfig() {
 }
 
 /**
- * Log configuration check (for debugging)
- * This function helps verify that configuration is loaded correctly
+ * Log pemeriksaan konfigurasi (untuk debugging)
+ * Fungsi ini membantu memverifikasi bahwa konfigurasi dimuat dengan benar
  */
 function logConfigurationCheck() {
     if (defined('DEBUG_MODE') && DEBUG_MODE) {
@@ -230,37 +230,37 @@ function logConfigurationCheck() {
     }
 }
 
-// Run configuration check if debug mode is enabled
+// Jalankan pemeriksaan konfigurasi jika mode debug diaktifkan
 if (defined('DEBUG_MODE') && DEBUG_MODE) {
     logConfigurationCheck();
 }
 
 // ============================================================================
-// SECURITY NOTES
-// Important security considerations for production deployment
+// CATATAN KEAMANAN
+// Pertimbangan keamanan penting untuk deployment production
 // ============================================================================
 
 /*
-IMPORTANT SECURITY CHECKLIST:
+CHECKLIST KEAMANAN PENTING:
 
-1. Replace all placeholder values with actual credentials
-2. Use strong, unique passwords and secret keys
-3. Enable SSL/TLS for all email communications
-4. Implement proper input validation and sanitization
-5. Use environment variables for sensitive configuration
-6. Enable rate limiting and DDoS protection
-7. Regularly update dependencies and security patches
-8. Monitor logs for suspicious activity
-9. Implement proper error handling without exposing sensitive info
-10. Use HTTPS for all communications in production
+1. Ganti semua nilai placeholder dengan kredensial aktual
+2. Gunakan password dan secret key yang kuat dan unik
+3. Aktifkan SSL/TLS untuk semua komunikasi email
+4. Implementasi validasi input dan sanitasi yang tepat
+5. Gunakan environment variables untuk konfigurasi sensitif
+6. Aktifkan rate limiting dan perlindungan DDoS
+7. Update dependencies dan security patch secara rutin
+8. Monitor log untuk aktivitas yang mencurigakan
+9. Implementasi penanganan error yang tepat tanpa mengekspos info sensitif
+10. Gunakan HTTPS untuk semua komunikasi di production
 
-RECOMMENDED PRODUCTION CHANGES:
-- Move configuration to environment variables
-- Use a secrets management service
-- Implement proper logging and monitoring
-- Set up automated backups
-- Enable security headers
-- Use a web application firewall
+PERUBAHAN PRODUCTION YANG DIREKOMENDASIKAN:
+- Pindahkan konfigurasi ke environment variables
+- Gunakan layanan manajemen secrets
+- Implementasi logging dan monitoring yang tepat
+- Setup backup otomatis
+- Aktifkan security headers
+- Gunakan web application firewall
 */
 
 ?>

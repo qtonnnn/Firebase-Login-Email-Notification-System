@@ -1,219 +1,219 @@
 // ============================================================================
-// FIREBASE CONFIGURATION AND SETUP
+// KONFIGURASI DAN SETUP FIREBASE
 // File: js/firebase-config.js
-// Description: Complete Firebase configuration and utility functions
-// Includes: Firebase SDK imports, initialization, authentication, and Firestore operations
+// Description: Konfigurasi Firebase lengkap dan fungsi utilitas
+// Includes: Import Firebase SDK, inisialisasi, autentikasi, dan operasi Firestore
 // ============================================================================
 
 // ============================================================================
-// FIREBASE SDK IMPORTS (v10.7.1)
-// Import Firebase App, Authentication, and Firestore modules
-// Using modern ES6 modules for tree-shaking and better performance
+// IMPORT FIREBASE SDK (v10.7.1)
+// Import modul Firebase App, Authentication, dan Firestore
+// Menggunakan ES6 modules modern untuk tree-shaking dan performa yang lebih baik
 // ============================================================================
 
-// Core Firebase App functionality
+// Fungsionalitas Firebase App inti
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 
-// Firebase Authentication module
+// Modul Firebase Authentication
 import { 
-    getAuth,                          // Get Firebase Auth instance
-    onAuthStateChanged,               // Listen to authentication state changes
-    signInWithEmailAndPassword,       // Email/password sign in
-    createUserWithEmailAndPassword,   // Email/password registration
-    sendPasswordResetEmail,          // Send password reset email
-    signOut,                         // Sign out user
-    updateProfile                    // Update user profile
+    getAuth,                          // Dapatkan instance Firebase Auth
+    onAuthStateChanged,               // Dengarkan perubahan status autentikasi
+    signInWithEmailAndPassword,       // Login dengan email/password
+    createUserWithEmailAndPassword,   // Pendaftaran email/password
+    sendPasswordResetEmail,          // Kirim email reset password
+    signOut,                         // Logout pengguna
+    updateProfile                    // Perbarui profil pengguna
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-// Firebase Firestore (Database) module
+// Modul Firebase Firestore (Database)
 import { 
-    getFirestore,                    // Get Firestore instance
-    doc,                            // Reference to document
-    setDoc,                         // Create/set document
-    getDoc,                         // Get single document
-    collection,                     // Reference to collection
-    query,                         // Create query
-    where,                         // Query condition
-    getDocs                        // Get multiple documents
+    getFirestore,                    // Dapatkan instance Firestore
+    doc,                            // Referensi ke dokumen
+    setDoc,                         // Buat/atur dokumen
+    getDoc,                         // Dapatkan satu dokumen
+    collection,                     // Referensi ke koleksi
+    query,                         // Buat query
+    where,                         // Kondisi query
+    getDocs                        // Dapatkan multiple dokumen
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // ============================================================================
-// FIREBASE CONFIGURATION
-// Replace these placeholder values with your actual Firebase project configuration
-// Get these values from Firebase Console > Project Settings > General > Your apps
+// KONFIGURASI FIREBASE
+// Ganti nilai placeholder ini dengan konfigurasi proyek Firebase Anda yang sebenarnya
+// Dapatkan nilai ini dari Firebase Console > Project Settings > General > Your apps
 // ============================================================================
 
 const firebaseConfig = {
-    apiKey: "your-api-key-here",              // Firebase API Key
-    authDomain: "your-project-id.firebaseapp.com",  // Authentication domain
-    projectId: "your-project-id",             // Firestore project ID
-    storageBucket: "your-project-id.appspot.com",   // Storage bucket URL
+    apiKey: "your-api-key-here",              // API Key Firebase
+    authDomain: "your-project-id.firebaseapp.com",  // Domain autentikasi
+    projectId: "your-project-id",             // ID proyek Firestore
+    storageBucket: "your-project-id.appspot.com",   // URL storage bucket
     messagingSenderId: "123456789",          // Cloud Messaging sender ID
     appId: "1:123456789:web:abcdef123456"    // Firebase app ID
 };
 
 // ============================================================================
-// FIREBASE APP INITIALIZATION
-// Initialize Firebase with the configuration
-// This creates the Firebase app instance that will be used by all services
+// INISIALISASI FIREBASE APP
+// Inisialisasi Firebase dengan konfigurasi
+// Ini membuat instance Firebase app yang akan digunakan oleh semua layanan
 // ============================================================================
 
-// Initialize Firebase app
+// Inisialisasi Firebase app
 const app = initializeApp(firebaseConfig);
 
 // ============================================================================
-// FIREBASE SERVICES INITIALIZATION
-// Initialize Firebase services (Authentication and Firestore)
-// These services will be used throughout the application
+// INISIALISASI LAYANAN FIREBASE
+// Inisialisasi layanan Firebase (Authentication dan Firestore)
+// Layanan ini akan digunakan di seluruh aplikasi
 // ============================================================================
 
-// Initialize Firebase Authentication service
+// Inisialisasi layanan Firebase Authentication
 const auth = getAuth(app);
 
-// Initialize Firebase Firestore (database) service
+// Inisialisasi layanan Firebase Firestore (database)
 const db = getFirestore(app);
 
 // ============================================================================
-// EXPORT FIREBASE CORE FUNCTIONS
-// Export all Firebase functions and instances for use in other modules
-// This allows other JavaScript files to import and use Firebase functionality
+// EXPORT FUNGSI FIREBASE INTI
+// Export semua fungsi dan instance Firebase untuk digunakan di modul lain
+// Ini memungkinkan file JavaScript lain untuk mengimpor dan menggunakan fungsionalitas Firebase
 // ============================================================================
 export {
-    // Core instances
-    app,              // Firebase app instance
-    auth,             // Firebase Authentication instance
-    db,               // Firestore database instance
+    // Instance inti
+    app,              // Instance Firebase app
+    auth,             // Instance Firebase Authentication
+    db,               // Instance database Firestore
     
-    // Authentication functions
-    getAuth,                          // Get Auth instance
-    onAuthStateChanged,               // Listen to auth state changes
-    signInWithEmailAndPassword,       // Email/password sign in
-    createUserWithEmailAndPassword,   // Email/password registration
-    sendPasswordResetEmail,          // Send password reset email
-    signOut,                         // Sign out user
-    updateProfile,                   // Update user profile
+    // Fungsi autentikasi
+    getAuth,                          // Dapatkan instance Auth
+    onAuthStateChanged,               // Dengarkan perubahan status auth
+    signInWithEmailAndPassword,       // Login dengan email/password
+    createUserWithEmailAndPassword,   // Pendaftaran email/password
+    sendPasswordResetEmail,          // Kirim email reset password
+    signOut,                         // Logout pengguna
+    updateProfile,                   // Perbarui profil pengguna
     
-    // Firestore functions
-    doc,                            // Document reference
-    setDoc,                         // Create/set document
-    getDoc,                         // Get single document
-    collection,                     // Collection reference
-    query,                         // Query builder
-    where,                         // Query condition
-    getDocs                        // Get multiple documents
+    // Fungsi Firestore
+    doc,                            // Referensi dokumen
+    setDoc,                         // Buat/atur dokumen
+    getDoc,                         // Dapatkan satu dokumen
+    collection,                     // Referensi koleksi
+    query,                         // Builder query
+    where,                         // Kondisi query
+    getDocs                        // Dapatkan multiple dokumen
 };
 
 // ============================================================================
-// UTILITY FUNCTIONS
-// Helper functions for common Firebase operations
+// FUNGSI UTILITAS
+// Fungsi helper untuk operasi Firebase yang umum
 // ============================================================================
 
 /**
- * Get current authenticated user
- * Function: getCurrentUser()
- * Purpose: Get the currently authenticated user (if any)
- * Returns: Promise that resolves to user object or null
+ * Dapatkan pengguna yang sedang autentikasi
+ * Fungsi: getCurrentUser()
+ * Tujuan: Dapatkan pengguna yang sedang autentikasi (jika ada)
+ * Returns: Promise yang resolve ke objek pengguna atau null
  * 
- * This function provides a clean way to get the current user
- * without having to deal with the async nature of onAuthStateChanged
+ * Fungsi ini menyediakan cara yang bersih untuk mendapatkan pengguna saat ini
+ * tanpa harus deal dengan sifat async dari onAuthStateChanged
  */
 export const getCurrentUser = () => {
     return new Promise((resolve) => {
-        // Create unsubscribe function to stop listening after getting user
+        // Buat fungsi unsubscribe untuk berhenti listen setelah mendapatkan pengguna
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            // Immediately stop listening to avoid memory leaks
+            // Langsung berhenti listen untuk mencegah memory leaks
             unsubscribe();
-            // Resolve with user (or null if not authenticated)
+            // Resolve dengan pengguna (atau null jika tidak terotentikasi)
             resolve(user);
         });
     });
 };
 
 /**
- * Check authentication state
- * Function: checkAuthState(callback)
- * Purpose: Subscribe to authentication state changes
- * Parameters:
- *   - callback: Function to call when auth state changes
- *               Receives user object as parameter
- * Returns: Unsubscribe function to stop listening
+ * Periksa status autentikasi
+ * Fungsi: checkAuthState(callback)
+ * Tujuan: Subscribe untuk perubahan status autentikasi
+ * Parameter:
+ *   - callback: Fungsi yang dipanggil ketika status auth berubah
+ *               Menerima objek pengguna sebagai parameter
+ * Returns: Fungsi unsubscribe untuk berhenti listen
  * 
- * This function allows components to react to login/logout events
+ * Fungsi ini memungkinkan komponen untuk react terhadap event login/logout
  */
 export const checkAuthState = (callback) => {
     return onAuthStateChanged(auth, callback);
 };
 
 // ============================================================================
-// USER PROFILE MANAGEMENT
-// Functions for creating and managing user profiles in Firestore
+// MANAJEMEN PROFIL PENGGUNA
+// Fungsi untuk membuat dan mengelola profil pengguna di Firestore
 // ============================================================================
 
 /**
- * Create user profile in Firestore
- * Function: createUserProfile(user, additionalData)
- * Purpose: Create user profile document in Firestore database
- * Parameters:
- *   - user: Firebase user object from authentication
- *   - additionalData: Additional data to store with user profile
- * Returns: Promise that resolves to document reference
+ * Buat profil pengguna di Firestore
+ * Fungsi: createUserProfile(user, additionalData)
+ * Tujuan: Buat dokumen profil pengguna di database Firestore
+ * Parameter:
+ *   - user: Objek pengguna Firebase dari autentikasi
+ *   - additionalData: Data tambahan untuk disimpan dengan profil pengguna
+ * Returns: Promise yang resolve ke referensi dokumen
  * 
- * This function creates a document in the 'users' collection
- * with user information for easy retrieval and management
+ * Fungsi ini membuat dokumen di koleksi 'users'
+ * dengan informasi pengguna untuk easy retrieval dan management
  */
 export const createUserProfile = async (user, additionalData = {}) => {
-    // Don't proceed if user object is not provided
+    // Jangan lanjutkan jika objek user tidak disediakan
     if (!user) return;
 
-    // Create reference to user document in 'users' collection
+    // Buat referensi ke dokumen pengguna di koleksi 'users'
     const userRef = doc(db, 'users', user.uid);
     
-    // Check if user profile already exists
+    // Periksa apakah profil pengguna sudah ada
     const userSnap = await getDoc(userRef);
 
-    // Only create profile if it doesn't exist
+    // Hanya buat profil jika belum ada
     if (!userSnap.exists()) {
-        // Extract user information
+        // Ekstrak informasi pengguna
         const { email, displayName } = user;
-        const createdAt = new Date().toISOString(); // Current timestamp
+        const createdAt = new Date().toISOString(); // Timestamp saat ini
 
         try {
-            // Create user profile document
+            // Buat dokumen profil pengguna
             await setDoc(userRef, {
-                email,                              // User's email address
-                displayName: displayName || additionalData.displayName || '', // Display name
-                createdAt,                          // When account was created
-                emailVerified: false,               // Email verification status
-                lastLogin: null,                    // Last login timestamp
-                ...additionalData                   // Any additional data
+                email,                              // Alamat email pengguna
+                displayName: displayName || additionalData.displayName || '', // Nama tampilan
+                createdAt,                          // Kapan akun dibuat
+                emailVerified: false,               // Status verifikasi email
+                lastLogin: null,                    // Timestamp login terakhir
+                ...additionalData                   // Data tambahan apapun
             });
         } catch (error) {
             console.error('Error creating user profile:', error);
-            throw error; // Re-throw to handle in calling code
+            throw error; // Re-throw untuk ditangani di kode pemanggil
         }
     }
 
-    // Return document reference
+    // Kembalikan referensi dokumen
     return userRef;
 };
 
 /**
- * Get user profile from Firestore
- * Function: getUserProfile(uid)
- * Purpose: Retrieve user profile data from Firestore
- * Parameters:
- *   - uid: User's unique ID (from Firebase Auth)
- * Returns: Promise that resolves to user profile data or null
+ * Dapatkan profil pengguna dari Firestore
+ * Fungsi: getUserProfile(uid)
+ * Tujuan: Ambil data profil pengguna dari Firestore
+ * Parameter:
+ *   - uid: ID unik pengguna (dari Firebase Auth)
+ * Returns: Promise yang resolve ke data profil pengguna atau null
  */
 export const getUserProfile = async (uid) => {
     try {
-        // Create reference to user document
+        // Buat referensi ke dokumen pengguna
         const userRef = doc(db, 'users', uid);
         
-        // Get document snapshot
+        // Dapatkan snapshot dokumen
         const userSnap = await getDoc(userRef);
         
-        // Return document data if it exists, otherwise null
+        // Kembalikan data dokumen jika ada, jika tidak null
         if (userSnap.exists()) {
             return userSnap.data();
         }
@@ -225,49 +225,49 @@ export const getUserProfile = async (uid) => {
 };
 
 /**
- * Check if email already exists in Firestore
- * Function: checkEmailExists(email)
- * Purpose: Check if an email address is already registered
- * Parameters:
- *   - email: Email address to check
- * Returns: Promise that resolves to boolean (true if email exists)
+ * Periksa apakah email sudah ada di Firestore
+ * Fungsi: checkEmailExists(email)
+ * Tujuan: Periksa apakah alamat email sudah terdaftar
+ * Parameter:
+ *   - email: Alamat email untuk memeriksa
+ * Returns: Promise yang resolve ke boolean (true jika email ada)
  * 
- * This function is used to prevent duplicate email registrations
- * and to check if an email exists before login attempts
+ * Fungsi ini digunakan untuk mencegah pendaftaran email duplikat
+ * dan untuk memeriksa apakah email ada sebelum percobaan login
  */
 export const checkEmailExists = async (email) => {
     try {
-        // Create reference to users collection
+        // Buat referensi ke koleksi users
         const usersRef = collection(db, 'users');
         
-        // Create query to find documents with matching email
+        // Buat query untuk menemukan dokumen dengan email yang cocok
         const q = query(usersRef, where('email', '==', email));
         
-        // Execute query and get results
+        // Eksekusi query dan dapatkan hasil
         const querySnapshot = await getDocs(q);
         
-        // Return true if any documents found (email exists)
+        // Kembalikan true jika ada dokumen yang ditemukan (email ada)
         return !querySnapshot.empty;
     } catch (error) {
         console.error('Error checking email:', error);
-        // Return false on error to avoid blocking user actions
+        // Kembalikan false pada error untuk tidak menghalangi aksi pengguna
         return false;
     }
 };
 
 // ============================================================================
-// ADDITIONAL UTILITY FUNCTIONS (Optional)
-// Helper functions for common operations
+// FUNGSI UTILITAS TAMBAHAN (Opsional)
+// Fungsi helper untuk operasi umum
 // ============================================================================
 
 /**
- * Update user profile information
- * Function: updateUserProfile(uid, updateData)
- * Purpose: Update user profile data in Firestore
- * Parameters:
- *   - uid: User's unique ID
- *   - updateData: Object containing fields to update
- * Returns: Promise that resolves when update is complete
+ * Perbarui informasi profil pengguna
+ * Fungsi: updateUserProfile(uid, updateData)
+ * Tujuan: Perbarui data profil pengguna di Firestore
+ * Parameter:
+ *   - uid: ID unik pengguna
+ *   - updateData: Objek yang berisi field yang akan diperbarui
+ * Returns: Promise yang resolve ketika update selesai
  */
 export const updateUserProfile = async (uid, updateData) => {
     try {
@@ -281,12 +281,12 @@ export const updateUserProfile = async (uid, updateData) => {
 };
 
 /**
- * Update user's last login timestamp
- * Function: updateLastLogin(uid)
- * Purpose: Record when user last logged in
- * Parameters:
- *   - uid: User's unique ID
- * Returns: Promise that resolves when update is complete
+ * Perbarui timestamp login terakhir pengguna
+ * Fungsi: updateLastLogin(uid)
+ * Tujuan: Catat kapan pengguna terakhir login
+ * Parameter:
+ *   - uid: ID unik pengguna
+ * Returns: Promise yang resolve ketika update selesai
  */
 export const updateLastLogin = async (uid) => {
     try {
@@ -302,11 +302,11 @@ export const updateLastLogin = async (uid) => {
 };
 
 /**
- * Get all users (admin function)
- * Function: getAllUsers()
- * Purpose: Get all user profiles from Firestore
- * Returns: Promise that resolves to array of user profiles
- * Note: Use with caution - may return large datasets
+ * Dapatkan semua pengguna (fungsi admin)
+ * Fungsi: getAllUsers()
+ * Tujuan: Dapatkan semua profil pengguna dari Firestore
+ * Returns: Promise yang resolve ke array profil pengguna
+ * Note: Gunakan dengan hati-hati - mungkin mengembalikan dataset besar
  */
 export const getAllUsers = async () => {
     try {

@@ -1,152 +1,152 @@
 <?php
 // ============================================================================
-// EMAIL NOTIFICATION SENDER
+// PENGIRIM NOTIFIKASI EMAIL
 // File: backend/send_notification.php
-// Description: PHP backend for sending email notifications via PHPMailer
-// Purpose: Handle email sending from Firebase login system to users
-// Features: SMTP configuration, Email templates, Error handling, CORS support
+// Description: Backend PHP untuk mengirim notifikasi email via PHPMailer
+// Tujuan: Menangani pengiriman email dari sistem login Firebase ke pengguna
+// Features: Konfigurasi SMTP, Template email, Error handling, Dukungan CORS
 // ============================================================================
 
 // ============================================================================
-// CORS HEADERS AND SECURITY
-// Set headers to allow cross-origin requests from frontend
+// HEADER CORS DAN KEAMANAN
+// Set header untuk mengizinkan cross-origin request dari frontend
 // ============================================================================
 
-// Set response content type to JSON
+// Set response content type ke JSON
 header('Content-Type: application/json');
 
-// Allow cross-origin requests from any domain (for development)
-// In production, replace '*' with your specific domain
+// Izinkan cross-origin request dari domain apa pun (untuk development)
+// Untuk production, ganti '*' dengan domain spesifik Anda
 header('Access-Control-Allow-Origin: *');
 
-// Allow specific HTTP methods
+// Izinkan metode HTTP spesifik
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 
-// Allow specific headers
+// Izinkan header spesifik
 header('Access-Control-Allow-Headers: Content-Type');
 
 // ============================================================================
-// PREFLIGHT REQUEST HANDLING
-// Handle OPTIONS requests for CORS preflight
+// PENANGANAN PREFLIGHT REQUEST
+// Handle OPTIONS request untuk CORS preflight
 // ============================================================================
 
-// If request method is OPTIONS (preflight), return 200 OK and exit
+// Jika metode request adalah OPTIONS (preflight), kembalikan 200 OK dan exit
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);  // HTTP 200 OK
     exit();                   // Exit script
 }
 
 // ============================================================================
-// DEPENDENCY INCLUDES
-// Include PHPMailer and configuration files
+// INCLUDES DEPENDENCY
+// Include PHPMailer dan file konfigurasi
 // ============================================================================
 
-// Include PHPMailer autoloader (loaded via Composer)
+// Include PHPMailer autoloader (dimuat via Composer)
 require_once 'vendor/autoload.php';
 
-// Include email configuration settings
+// Include pengaturan konfigurasi email
 require_once 'config.php';
 
 // ============================================================================
-// PHPMAILER NAMESPACE IMPORTS
-// Import PHPMailer classes for email functionality
+// IMPORT NAMESPACE PHPMAILER
+// Import kelas PHPMailer untuk fungsionalitas email
 // ============================================================================
 
-use PHPMailer\PHPMailer\PHPMailer;      // Main PHPMailer class
-use PHPMailer\PHPMailer\SMTP;           // SMTP configuration class
-use PHPMailer\PHPMailer\Exception;      // Exception handling class
+use PHPMailer\PHPMailer\PHPMailer;      // Kelas PHPMailer utama
+use PHPMailer\PHPMailer\SMTP;           // Kelas konfigurasi SMTP
+use PHPMailer\PHPMailer\Exception;      // Kelas penanganan Exception
 
 // ============================================================================
-// MAIN EMAIL SENDING FUNCTION
-// Function: sendNotificationEmail($email, $subject, $message, $type)
-// Purpose: Send notification email using PHPMailer with SMTP configuration
-// Parameters:
-//   - $email: Recipient email address
-//   - $subject: Email subject line
-//   - $message: Email message content
-//   - $type: Notification type (for template selection)
-// Returns: Array with success status and message
+// FUNGSI PENGIRIMAN EMAIL UTAMA
+// Fungsi: sendNotificationEmail($email, $subject, $message, $type)
+// Tujuan: Kirim notifikasi email menggunakan PHPMailer dengan konfigurasi SMTP
+// Parameter:
+//   - email: Alamat email penerima
+//   - subject: Baris subjek email
+//   - message: Konten pesan email
+//   - type: Jenis notifikasi (untuk pemilihan template)
+// Returns: Array dengan status sukses dan pesan
 // ============================================================================
 function sendNotificationEmail($email, $subject, $message, $type = 'info') {
-    // Create new PHPMailer instance
+    // Buat instance PHPMailer baru
     $mail = new PHPMailer(true);
     
     try {
         // ====================================================================
-        // SMTP SERVER CONFIGURATION
-        // Configure SMTP settings for email sending
+        // KONFIGURASI SERVER SMTP
+        // Konfigurasi pengaturan SMTP untuk pengiriman email
         // ====================================================================
         
-        // Set email sending method to SMTP
+        // Set metode pengiriman email ke SMTP
         $mail->isSMTP();
         
-        // SMTP server hostname (from config.php)
+        // Hostname server SMTP (dari config.php)
         $mail->Host       = SMTP_HOST;
         
-        // Enable SMTP authentication
+        // Enable autentikasi SMTP
         $mail->SMTPAuth   = true;
         
-        // SMTP username (from config.php)
+        // Username SMTP (dari config.php)
         $mail->Username   = SMTP_USERNAME;
         
-        // SMTP password (from config.php)
+        // Password SMTP (dari config.php)
         $mail->Password   = SMTP_PASSWORD;
         
-        // Enable TLS encryption
+        // Enable enkripsi TLS
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         
-        // SMTP port number (from config.php)
+        // Nomor port SMTP (dari config.php)
         $mail->Port       = SMTP_PORT;
         
         // ====================================================================
-        // EMAIL RECIPIENTS CONFIGURATION
-        // Set sender, recipient, and BCC addresses
+        // KONFIGURASI PENERIMA EMAIL
+        // Set alamat pengirim, penerima, dan BCC
         // ====================================================================
         
-        // Set sender information (from config.php)
+        // Set informasi pengirim (dari config.php)
         $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
         
-        // Add recipient (the user)
+        // Tambahkan penerima (pengguna)
         $mail->addAddress($email, 'Pengguna');
         
-        // Add BCC (Blind Carbon Copy) to admin for monitoring
+        // Tambahkan BCC (Blind Carbon Copy) ke admin untuk monitoring
         $mail->addBCC('qtonnnn@gmail.com', 'Admin');
         
         // ====================================================================
-        // EMAIL CONTENT CONFIGURATION
-        // Set email format, subject, and body content
+        // KONFIGURASI KONTEN EMAIL
+        // Set format email, subjek, dan body content
         // ====================================================================
         
-        // Set email format to HTML
+        // Set format email ke HTML
         $mail->isHTML(true);
         
-        // Set email subject line
+        // Set baris subjek email
         $mail->Subject = $subject;
         
-        // Get email template based on notification type
+        // Dapatkan template email berdasarkan jenis notifikasi
         $emailTemplate = getEmailTemplate($type, $message);
         
-        // Set HTML email body content
+        // Set konten body email HTML
         $mail->Body = $emailTemplate['html'];
         
-        // Set plain text alternative for email clients that don't support HTML
+        // Set alternatif plain text untuk klien email yang tidak mendukung HTML
         $mail->AltBody = strip_tags($message);
         
         // ====================================================================
-        // SEND EMAIL
-        // Attempt to send the email via SMTP
+        // KIRIM EMAIL
+        // Coba kirim email via SMTP
         // ====================================================================
         
         $mail->send();
         
-        // Return success response
+        // Kembalikan response sukses
         return [
             'success' => true,
             'message' => 'Email notifikasi berhasil dikirim'
         ];
         
     } catch (Exception $e) {
-        // Handle email sending errors
+        // Tangani error pengiriman email
         return [
             'success' => false,
             'message' => 'Gagal mengirim email: ' . $mail->ErrorInfo
@@ -155,21 +155,21 @@ function sendNotificationEmail($email, $subject, $message, $type = 'info') {
 }
 
 // ============================================================================
-// EMAIL TEMPLATE GENERATOR
-// Function: getEmailTemplate($type, $message)
-// Purpose: Generate HTML email templates based on notification type
-// Parameters:
-//   - $type: Notification type identifier
-//   - $message: Message content to include in template
-// Returns: Array with HTML template content
+// GENERATOR TEMPLATE EMAIL
+// Fungsi: getEmailTemplate($type, $message)
+// Tujuan: Generate template email HTML berdasarkan jenis notifikasi
+// Parameter:
+//   - $type: Identifier jenis notifikasi
+//   - $message: Konten pesan untuk disertakan dalam template
+// Returns: Array dengan konten template HTML
 // ============================================================================
 function getEmailTemplate($type, $message) {
-    // Define email templates for different notification types
+    // Definisikan template email untuk berbagai jenis notifikasi
     $templates = [
         
         // ============================================================================
-        // LOGIN SUCCESS TEMPLATE
-        // Template for successful login notifications
+        // TEMPLATE SUKSES LOGIN
+        // Template untuk notifikasi login berhasil
         // ============================================================================
         'login_success' => [
             'html' => '
@@ -178,7 +178,7 @@ function getEmailTemplate($type, $message) {
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    /* CSS Styles for Login Success Email */
+                    /* CSS Styles untuk Email Sukses Login */
                     body { 
                         font-family: Arial, sans-serif; 
                         margin: 0; 
@@ -243,8 +243,8 @@ function getEmailTemplate($type, $message) {
         ],
         
         // ============================================================================
-        // REGISTRATION SUCCESS TEMPLATE
-        // Template for new user registration notifications
+        // TEMPLATE SUKSES PENDAFTARAN
+        // Template untuk notifikasi pendaftaran pengguna baru
         // ============================================================================
         'registration_success' => [
             'html' => '
@@ -253,7 +253,7 @@ function getEmailTemplate($type, $message) {
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    /* CSS Styles for Registration Success Email */
+                    /* CSS Styles untuk Email Sukses Pendaftaran */
                     body { 
                         font-family: Arial, sans-serif; 
                         margin: 0; 
@@ -317,8 +317,8 @@ function getEmailTemplate($type, $message) {
         ],
         
         // ============================================================================
-        // PASSWORD RESET TEMPLATE
-        // Template for password reset request notifications
+        // TEMPLATE RESET PASSWORD
+        // Template untuk notifikasi permintaan reset password
         // ============================================================================
         'password_reset' => [
             'html' => '
@@ -327,7 +327,7 @@ function getEmailTemplate($type, $message) {
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    /* CSS Styles for Password Reset Email */
+                    /* CSS Styles untuk Email Reset Password */
                     body { 
                         font-family: Arial, sans-serif; 
                         margin: 0; 
@@ -403,8 +403,8 @@ function getEmailTemplate($type, $message) {
         ],
         
         // ============================================================================
-        // SECURITY ALERT TEMPLATE
-        // Template for security alert notifications
+        // TEMPLATE ALERT KEAMANAN
+        // Template untuk notifikasi alert keamanan
         // ============================================================================
         'security_alert' => [
             'html' => '
@@ -413,7 +413,7 @@ function getEmailTemplate($type, $message) {
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    /* CSS Styles for Security Alert Email */
+                    /* CSS Styles untuk Email Alert Keamanan */
                     body { 
                         font-family: Arial, sans-serif; 
                         margin: 0; 
@@ -482,8 +482,8 @@ function getEmailTemplate($type, $message) {
         ],
         
         // ============================================================================
-        // DEFAULT INFO TEMPLATE
-        // Template for general information notifications
+        // TEMPLATE INFO DEFAULT
+        // Template untuk notifikasi informasi umum
         // ============================================================================
         'info' => [
             'html' => '
@@ -492,7 +492,7 @@ function getEmailTemplate($type, $message) {
             <head>
                 <meta charset="UTF-8">
                 <style>
-                    /* CSS Styles for Info Email */
+                    /* CSS Styles untuk Email Info */
                     body { 
                         font-family: Arial, sans-serif; 
                         margin: 0; 
@@ -553,27 +553,27 @@ function getEmailTemplate($type, $message) {
         ]
     ];
     
-    // Return template for specified type, or default info template
+    // Kembalikan template untuk jenis yang ditentukan, atau template info default
     return $templates[$type] ?? $templates['info'];
 }
 
 // ============================================================================
-// MAIN REQUEST HANDLER
-// Process incoming POST requests from frontend
+// PENANGANAN REQUEST UTAMA
+// Process request POST masuk dari frontend
 // ============================================================================
 
-// Check if request method is POST
+// Periksa apakah metode request adalah POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // ====================================================================
-    // INPUT VALIDATION
-    // Validate and sanitize input data
+    // VALIDASI INPUT
+    // Validasi dan sanitize data input
     // ====================================================================
     
-    // Get JSON input from request body
+    // Dapatkan input JSON dari request body
     $input = json_decode(file_get_contents('php://input'), true);
     
-    // Check if required parameters are present
+    // Periksa apakah parameter yang diperlukan ada
     if (!$input || !isset($input['email']) || !isset($input['type']) || !isset($input['message'])) {
         http_response_code(400);  // Bad Request
         echo json_encode([
@@ -583,17 +583,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
     
-    // Sanitize and validate email address
+    // Sanitize dan validasi alamat email
     $email = filter_var($input['email'], FILTER_VALIDATE_EMAIL);
     
-    // Get notification type and message
+    // Dapatkan jenis notifikasi dan pesan
     $type = $input['type'];
     $message = $input['message'];
     
-    // Get subject line or use default
+    // Dapatkan baris subjek atau gunakan default
     $subject = $input['subject'] ?? 'Notifikasi dari Firebase Login System';
     
-    // Validate email format
+    // Validasi format email
     if (!$email) {
         http_response_code(400);  // Bad Request
         echo json_encode([
@@ -604,17 +604,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // ====================================================================
-    // SEND EMAIL
-    // Call email sending function with validated parameters
+    // KIRIM EMAIL
+    // Panggil fungsi pengiriman email dengan parameter yang divalidasi
     // ====================================================================
     
     $result = sendNotificationEmail($email, $subject, $message, $type);
     
-    // Return JSON response
+    // Kembalikan response JSON
     echo json_encode($result);
     
 } else {
-    // Handle unsupported HTTP methods
+    // Handle metode HTTP yang tidak didukung
     http_response_code(405);  // Method Not Allowed
     echo json_encode([
         'success' => false,

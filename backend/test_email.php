@@ -1,61 +1,61 @@
 <?php
 // ============================================================================
-// EMAIL SYSTEM TESTING INTERFACE
+// ANTARMUKA TESTING SISTEM EMAIL
 // File: backend/test_email.php
-// Description: Testing interface for email notification system
-// Purpose: Allow testing and validation of email functionality
-// Features: Web form interface, AJAX testing, Email logging, Error handling
+// Description: Antarmuka testing untuk sistem notifikasi email
+// Tujuan: Memungkinkan testing dan validasi fungsionalitas email
+// Features: Antarmuka form web, AJAX testing, Email logging, Error handling
 // ============================================================================
 
 // ============================================================================
-// HTTP HEADERS
-// Set headers for proper response handling and CORS support
+// HEADER HTTP
+// Set header untuk penanganan response yang tepat dan dukungan CORS
 // ============================================================================
 
-// Set response content type to JSON for API responses
+// Set response content type ke JSON untuk API responses
 header('Content-Type: application/json');
 
 // ============================================================================
-// DEPENDENCY INCLUDES
-// Include configuration file for email settings
+// INCLUDES DEPENDENCY
+// Include file konfigurasi untuk pengaturan email
 // ============================================================================
 
-// Load email configuration settings from config.php
+// Muat pengaturan konfigurasi email dari config.php
 require_once 'config.php';
 
 // ============================================================================
-// TEST EMAIL HANDLER
-// Process test email requests via URL parameters
+// PENANGAN TEST EMAIL
+// Process request test email via parameter URL
 // ============================================================================
 
-// Check if this is a test request (via URL parameter)
+// Periksa apakah ini request test (via parameter URL)
 // Usage: test_email.php?test=email@example.com
 if (isset($_GET['test'])) {
     
-    // Get test email from URL parameter, or use default
-    // Default: qtonnnn@gmail.com (as specified in requirements)
+    // Dapatkan test email dari parameter URL, atau gunakan default
+    // Default: qtonnnn@gmail.com (seperti yang ditetapkan dalam requirements)
     $testEmail = $_GET['test'] ?? 'qtonnnn@gmail.com';
     
     // ============================================================================
-    // PREPARE TEST DATA
-    // Create sample email data for testing
+    // SIAPKAN DATA TEST
+    // Buat data email sample untuk testing
     // ============================================================================
     
-    // Define test email parameters
+    // Definisikan parameter email test
     $testData = [
-        'email' => $testEmail,                                      // Test recipient email
-        'type' => 'login_success',                                  // Test notification type
-        'message' => 'Ini adalah email test dari sistem Firebase Login. Dikirim pada ' . date('Y-m-d H:i:s'), // Test message with timestamp
-        'subject' => '🧪 Test Email - Firebase Login System'        // Test email subject
+        'email' => $testEmail,                                      // Email penerima test
+        'type' => 'login_success',                                  // Jenis notifikasi test
+        'message' => 'Ini adalah email test dari sistem Firebase Login. Dikirim pada ' . date('Y-m-d H:i:s'), // Pesan test dengan timestamp
+        'subject' => '🧪 Test Email - Firebase Login System'        // Subjek email test
     ];
     
     // ============================================================================
-    // SECURITY CHECK
-    // Prevent actual email sending during testing for security
+    // PERIKSA KEAMANAN
+    // Cegah pengiriman email aktual selama testing untuk keamanan
     // ============================================================================
     
-    // Check if email sending is enabled but logging is disabled
-    // This prevents accidental spam during testing
+    // Periksa apakah pengiriman email diaktifkan tetapi logging dinonaktifkan
+    // Ini mencegah spam accidental selama testing
     if (ENABLE_EMAIL && !LOG_EMAIL) {
         echo json_encode([
             'success' => false,
@@ -65,10 +65,10 @@ if (isset($_GET['test'])) {
         
         // ============================================================================
         // LOG TEST EMAIL
-        // Log test email activity instead of sending actual emails
+        // Log aktivitas email test sebagai ganti pengiriman email aktual
         // ============================================================================
         
-        // Create log entry with timestamp and test details
+        // Buat entri log dengan timestamp dan detail test
         $logEntry = "[" . date('Y-m-d H:i:s') . "] Test email to: {$testEmail}\n";
         $logEntry .= "Type: {$testData['type']}\n";
         $logEntry .= "Message: {$testData['message']}\n";
@@ -77,10 +77,10 @@ if (isset($_GET['test'])) {
         $logEntry .= "User-Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown') . "\n";
         $logEntry .= "----------------------------------------\n";
         
-        // Append log entry to file with proper locking
+        // Append entri log ke file dengan locking yang tepat
         file_put_contents(LOG_FILE, $logEntry, FILE_APPEND | LOCK_EX);
         
-        // Return success response with test data
+        // Kembalikan response sukses dengan data test
         echo json_encode([
             'success' => true,
             'message' => 'Test email logged successfully',
@@ -93,23 +93,23 @@ if (isset($_GET['test'])) {
     
 } else {
     // ============================================================================
-    // DISPLAY TEST FORM
-    // Show HTML interface for testing email functionality
+    // TAMPILKAN FORM TEST
+    // Tampilkan antarmuka HTML untuk testing fungsionalitas email
     // ============================================================================
     ?>
     <!DOCTYPE html>
     <html lang="id">
     <head>
-        <!-- Basic HTML meta tags -->
+        <!-- Tag meta HTML dasar -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-        <!-- Page title -->
+        <!-- Judul halaman -->
         <title>Test Email - Firebase Login System</title>
         
-        <!-- CSS Styles for the test interface -->
+        <!-- CSS Styles untuk antarmuka test -->
         <style>
-            /* Base styles for body and layout */
+            /* Gaya dasar untuk body dan layout */
             body { 
                 font-family: Arial, sans-serif; 
                 max-width: 600px; 
@@ -119,7 +119,7 @@ if (isset($_GET['test'])) {
                 line-height: 1.6;
             }
             
-            /* Container for the test form */
+            /* Container untuk form test */
             .container { 
                 background: white; 
                 padding: 30px; 
@@ -127,12 +127,12 @@ if (isset($_GET['test'])) {
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             }
             
-            /* Form group styling */
+            /* Gaya form group */
             .form-group { 
                 margin-bottom: 20px; 
             }
             
-            /* Label styling */
+            /* Gaya label */
             label { 
                 display: block; 
                 margin-bottom: 5px; 
@@ -140,7 +140,7 @@ if (isset($_GET['test'])) {
                 color: #333;
             }
             
-            /* Input field styling */
+            /* Gaya input field */
             input, select, textarea, button { 
                 width: 100%; 
                 padding: 12px; 
@@ -150,14 +150,14 @@ if (isset($_GET['test'])) {
                 box-sizing: border-box;
             }
             
-            /* Input field focus state */
+            /* State fokus input field */
             input:focus, select:focus, textarea:focus {
                 outline: none;
                 border-color: #667eea;
                 box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
             }
             
-            /* Button styling */
+            /* Gaya tombol */
             button { 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                 color: white; 
@@ -167,21 +167,21 @@ if (isset($_GET['test'])) {
                 transition: all 0.3s ease;
             }
             
-            /* Button hover state */
+            /* State hover tombol */
             button:hover { 
                 background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); 
                 transform: translateY(-1px);
                 box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             }
             
-            /* Button disabled state */
+            /* State disabled tombol */
             button:disabled {
                 opacity: 0.6;
                 cursor: not-allowed;
                 transform: none;
             }
             
-            /* Result display styling */
+            /* Gaya display result */
             .result { 
                 margin-top: 20px; 
                 padding: 15px; 
@@ -189,35 +189,35 @@ if (isset($_GET['test'])) {
                 display: none;
             }
             
-            /* Success message styling */
+            /* Gaya pesan sukses */
             .success { 
                 background: #d4edda; 
                 color: #155724; 
                 border: 1px solid #c3e6cb; 
             }
             
-            /* Error message styling */
+            /* Gaya pesan error */
             .error { 
                 background: #f8d7da; 
                 color: #721c24; 
                 border: 1px solid #f5c6cb; 
             }
             
-            /* Loading indicator */
+            /* Indikator loading */
             .loading {
                 background: #cce7ff;
                 color: #004085;
                 border: 1px solid #99d1ff;
             }
             
-            /* Header styling */
+            /* Gaya header */
             h1 {
                 color: #333;
                 text-align: center;
                 margin-bottom: 10px;
             }
             
-            /* Subtitle styling */
+            /* Gaya subtitle */
             .subtitle {
                 text-align: center;
                 color: #666;
@@ -225,7 +225,7 @@ if (isset($_GET['test'])) {
                 font-style: italic;
             }
             
-            /* Configuration info box */
+            /* Kotak info konfigurasi */
             .config-info {
                 background: #e7f3ff;
                 border: 1px solid #b3d9ff;
@@ -239,7 +239,7 @@ if (isset($_GET['test'])) {
                 color: #0066cc;
             }
             
-            /* Status indicator */
+            /* Indikator status */
             .status-indicator {
                 display: inline-block;
                 width: 12px;
@@ -253,13 +253,13 @@ if (isset($_GET['test'])) {
         </style>
     </head>
     <body>
-        <!-- Main container -->
+        <!-- Container utama -->
         <div class="container">
-            <!-- Page header -->
+            <!-- Header halaman -->
             <h1>🧪 Test Email System</h1>
-            <p class="subtitle">Testing interface untuk sistem email Firebase Login</p>
+            <p class="subtitle">Antarmuka testing untuk sistem email Firebase Login</p>
             
-            <!-- Configuration status info -->
+            <!-- Info status konfigurasi -->
             <div class="config-info">
                 <h3>📊 Status Konfigurasi</h3>
                 <p>
@@ -280,9 +280,9 @@ if (isset($_GET['test'])) {
                 </p>
             </div>
             
-            <!-- Test form -->
+            <!-- Form test -->
             <form id="testForm">
-                <!-- Email input field -->
+                <!-- Field input email -->
                 <div class="form-group">
                     <label for="email">📧 Email Tujuan:</label>
                     <input type="email" 
@@ -294,7 +294,7 @@ if (isset($_GET['test'])) {
                     <small style="color: #666;">Email yang akan menerima test notification</small>
                 </div>
                 
-                <!-- Notification type selection -->
+                <!-- Pemilihan jenis notifikasi -->
                 <div class="form-group">
                     <label for="type">🔔 Jenis Notifikasi:</label>
                     <select id="type" name="type">
@@ -308,7 +308,7 @@ if (isset($_GET['test'])) {
                     <small style="color: #666;">Pilih jenis notification untuk testing</small>
                 </div>
                 
-                <!-- Custom message input -->
+                <!-- Input pesan custom -->
                 <div class="form-group">
                     <label for="message">💬 Pesan:</label>
                     <textarea id="message" 
@@ -319,43 +319,43 @@ if (isset($_GET['test'])) {
                     <small style="color: #666;">Pesan yang akan dikirim dalam email</small>
                 </div>
                 
-                <!-- Submit button -->
+                <!-- Tombol submit -->
                 <button type="submit" id="submitBtn">
                     🚀 Kirim Test Email
                 </button>
             </form>
             
-            <!-- Result display area -->
+            <!-- Area display result -->
             <div id="result"></div>
         </div>
 
-        <!-- JavaScript for form handling -->
+        <!-- JavaScript untuk penanganan form -->
         <script>
             // ============================================================================
-            // FORM EVENT LISTENER
-            // Handle form submission and AJAX request
+            // EVENT LISTENER FORM
+            // Handle form submission dan request AJAX
             // ============================================================================
             
             document.getElementById('testForm').addEventListener('submit', async function(e) {
-                // Prevent default form submission
+                // Mencegah default form submission
                 e.preventDefault();
                 
-                // Get form data
+                // Dapatkan data form
                 const formData = new FormData(this);
                 
-                // Prepare email data for API request
+                // Siapkan data email untuk request API
                 const emailData = {
-                    email: formData.get('email'),                    // Recipient email
-                    type: formData.get('type'),                      // Notification type
-                    message: formData.get('message'),                // Email message
-                    subject: '🧪 Test Email dari Firebase Login System' // Email subject
+                    email: formData.get('email'),                    // Email penerima
+                    type: formData.get('type'),                      // Jenis notifikasi
+                    message: formData.get('message'),                // Pesan email
+                    subject: '🧪 Test Email dari Firebase Login System' // Subjek email
                 };
                 
-                // Get result display element
+                // Dapatkan elemen display result
                 const resultDiv = document.getElementById('result');
                 const submitBtn = document.getElementById('submitBtn');
                 
-                // Show loading state
+                // Tampilkan state loading
                 resultDiv.style.display = 'block';
                 resultDiv.className = 'result loading';
                 resultDiv.innerHTML = `
@@ -365,30 +365,30 @@ if (isset($_GET['test'])) {
                     <p><strong>Type:</strong> ${emailData.type}</p>
                 `;
                 
-                // Disable submit button during request
+                // Nonaktifkan tombol submit selama request
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Mengirim...';
                 
                 try {
                     // ============================================================================
-                    // AJAX REQUEST TO BACKEND
-                    // Send test email via PHP backend
+                    // REQUEST AJAX KE BACKEND
+                    // Kirim test email via backend PHP
                     // ============================================================================
                     
                     const response = await fetch('send_notification.php', {
-                        method: 'POST',                              // HTTP POST method
+                        method: 'POST',                              // Metode HTTP POST
                         headers: {
-                            'Content-Type': 'application/json',      // JSON content type
+                            'Content-Type': 'application/json',      // Content type JSON
                         },
-                        body: JSON.stringify(emailData)              // Send data as JSON
+                        body: JSON.stringify(emailData)              // Kirim data sebagai JSON
                     });
                     
-                    // Parse JSON response
+                    // Parse response JSON
                     const result = await response.json();
                     
-                    // Check if request was successful
+                    // Periksa apakah request berhasil
                     if (result.success) {
-                        // Show success message
+                        // Tampilkan pesan sukses
                         resultDiv.className = 'result success';
                         resultDiv.innerHTML = `
                             <h3>✅ Email Test Berhasil!</h3>
@@ -405,7 +405,7 @@ if (isset($_GET['test'])) {
                             ` : ''}
                         `;
                     } else {
-                        // Show error message
+                        // Tampilkan pesan error
                         resultDiv.className = 'result error';
                         resultDiv.innerHTML = `
                             <h3>❌ Email Test Gagal</h3>
@@ -427,7 +427,7 @@ if (isset($_GET['test'])) {
                         `;
                     }
                 } catch (error) {
-                    // Handle network or JavaScript errors
+                    // Handle network atau JavaScript errors
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = `
                         <h3>❌ Network Error</h3>
@@ -447,22 +447,22 @@ if (isset($_GET['test'])) {
                         </ol>
                     `;
                 } finally {
-                    // Re-enable submit button
+                    // Re-enable tombol submit
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🚀 Kirim Test Email';
                 }
             });
             
             // ============================================================================
-            // FORM ENHANCEMENTS
-            // Add extra functionality to improve user experience
+            // ENHANCEMENT FORM
+            // Tambahkan fungsionalitas ekstra untuk meningkatkan pengalaman pengguna
             // ============================================================================
             
-            // Auto-update timestamp in message field
+            // Auto-update timestamp di field message
             const messageField = document.getElementById('message');
             const emailField = document.getElementById('email');
             
-            // Update timestamp every minute
+            // Update timestamp setiap menit
             setInterval(() => {
                 const now = new Date().toLocaleString('id-ID');
                 if (messageField.value.includes('Dikirim pada')) {
@@ -471,32 +471,32 @@ if (isset($_GET['test'])) {
                         `Dikirim pada ${now}`
                     );
                 }
-            }, 60000); // Update every minute
+            }, 60000); // Update setiap menit
             
-            // Auto-fill email from type selection
+            // Auto-fill email dari pemilihan type
             document.getElementById('type').addEventListener('change', function() {
                 const type = this.value;
                 let suggestion = 'qtonnnn@gmail.com'; // Default
                 
-                // Suggest different emails based on type (optional)
+                // Sarankan email berbeda berdasarkan type (opsional)
                 if (type === 'security_alert') {
-                    suggestion = 'admin@domain.com'; // Security alerts to admin
+                    suggestion = 'admin@domain.com'; // Security alerts ke admin
                 } else if (type === 'registration_success') {
-                    suggestion = 'newuser@example.com'; // Test with different email
+                    suggestion = 'newuser@example.com'; // Test dengan email berbeda
                 }
                 
-                // Only update if field is empty or contains default
+                // Hanya update jika field kosong atau berisi default
                 if (!emailField.value || emailField.value === 'qtonnnn@gmail.com') {
                     emailField.value = suggestion;
                 }
             });
             
-            // Character counter for message field
+            // Character counter untuk field message
             messageField.addEventListener('input', function() {
                 const length = this.value.length;
                 const maxLength = 500;
                 
-                // Add or update character counter
+                // Tambahkan atau update character counter
                 let counter = document.getElementById('charCounter');
                 if (!counter) {
                     counter = document.createElement('small');
@@ -507,17 +507,17 @@ if (isset($_GET['test'])) {
                 
                 counter.textContent = `${length}/${maxLength} karakter`;
                 
-                // Change color based on length
+                // Ubah warna berdasarkan panjang
                 if (length > maxLength * 0.9) {
-                    counter.style.color = '#dc3545'; // Red for near limit
+                    counter.style.color = '#dc3545'; // Merah untuk near limit
                 } else if (length > maxLength * 0.7) {
-                    counter.style.color = '#ffc107'; // Yellow for warning
+                    counter.style.color = '#ffc107'; // Kuning untuk warning
                 } else {
-                    counter.style.color = '#666'; // Normal color
+                    counter.style.color = '#666'; // Warna normal
                 }
             });
             
-            // Form validation enhancement
+            // Enhancement validasi form
             function validateForm() {
                 const email = emailField.value;
                 const message = messageField.value.trim();
@@ -526,14 +526,14 @@ if (isset($_GET['test'])) {
                 let isValid = true;
                 let errors = [];
                 
-                // Email validation
+                // Validasi email
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
                     errors.push('Format email tidak valid');
                     isValid = false;
                 }
                 
-                // Message validation
+                // Validasi pesan
                 if (message.length < 10) {
                     errors.push('Pesan terlalu pendek (minimal 10 karakter)');
                     isValid = false;
@@ -544,7 +544,7 @@ if (isset($_GET['test'])) {
                     isValid = false;
                 }
                 
-                // Show validation errors
+                // Tampilkan validation errors
                 let errorDiv = document.getElementById('validationErrors');
                 if (errors.length > 0) {
                     if (!errorDiv) {
@@ -565,7 +565,7 @@ if (isset($_GET['test'])) {
                 return isValid;
             }
             
-            // Add validation on form submission
+            // Tambahkan validasi pada form submission
             document.getElementById('testForm').addEventListener('submit', function(e) {
                 if (!validateForm()) {
                     e.preventDefault();
