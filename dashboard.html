@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistem Firebase</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                <div class="user-info">
+                    <span id="userEmail">Memuat...</span>
+                    <button onclick="logout()" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="welcome-section">
+                <div class="welcome-card">
+                    <div class="welcome-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>Selamat Datang!</h2>
+                    <p>Anda berhasil masuk ke sistem Firebase Authentication</p>
+                    <p id="welcomeMessage">Hai <span id="userName">User</span>, senang melihat Anda kembali!</p>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total User</h3>
+                        <span class="stat-number">1</span>
+                        <small>Anda adalah pengguna pertama</small>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Sesi Aktif</h3>
+                        <span class="stat-number">Online</span>
+                        <small>Status saat ini</small>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Keamanan</h3>
+                        <span class="stat-number">Aktif</span>
+                        <small>Terjamin dengan Firebase</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Aksi Cepat</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="showProfile()">
+                        <i class="fas fa-user"></i>
+                        <span>Lihat Profil</span>
+                    </button>
+                    
+                    <button class="action-btn" onclick="showSettings()">
+                        <i class="fas fa-cog"></i>
+                        <span>Pengaturan</span>
+                    </button>
+                    
+                    <button class="action-btn" onclick="showActivity()">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Aktivitas</span>
+                    </button>
+                    
+                    <button class="action-btn" onclick="testNotification()">
+                        <i class="fas fa-bell"></i>
+                        <span>Test Notifikasi</span>
+                    </button>
+                    
+                    <button class="action-btn" onclick="testEmail()">
+                        <i class="fas fa-envelope"></i>
+                        <span>Test Email ke Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <h3><i class="fas fa-history"></i> Aktivitas Terbaru</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Login Berhasil</h4>
+                            <p>Anda berhasil masuk ke sistem</p>
+                            <small id="loginTime">Baru saja</small>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Verifikasi Email</h4>
+                            <p>Akun Anda telah diverifikasi</p>
+                            <small>Otomatik</small>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Sesi Aman</h4>
+                            <p>Koneksi terenkripsi aktif</p>
+                            <small>SSL/HTTPS</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Memproses logout...</p>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/notifications.js"></script>
+    <script type="module" src="js/email-api.js"></script>
+    
+    <script>
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+
+        async function checkAuthState() {
+            const { getAuth, onAuthStateChanged } = await import('./js/firebase-config.js');
+            const { getCurrentUser } = await import('./js/auth.js');
+            
+            const auth = getAuth();
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    updateUserInfo(user);
+                    loadUserActivity();
+                } else {
+                    // User is signed out
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+
+        function updateUserInfo(user) {
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+            
+            // Update login time
+            const now = new Date();
+            document.getElementById('loginTime').textContent = now.toLocaleString('id-ID');
+        }
+
+        function loadUserActivity() {
+            // Simulate loading user activity
+            console.log('Loading user activity...');
+        }
+
+        async function logout() {
+            const { logoutUser } = await import('./js/auth.js');
+            const { showNotification } = await import('./js/notifications.js');
+            
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                await logoutUser();
+                showNotification('Logout berhasil! Sampai jumpa.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                showNotification('Gagal logout: ' + error.message, 'error');
+            }
+        }
+
+        function showProfile() {
+            alert('Fitur profil akan segera tersedia!');
+        }
+
+        function showSettings() {
+            alert('Fitur pengaturan akan segera tersedia!');
+        }
+
+        function showActivity() {
+            alert('Fitur aktivitas detail akan segera tersedia!');
+        }
+
+        async function testNotification() {
+            const { showNotification } = await import('./js/notifications.js');
+            showNotification('Ini adalah notifikasi test! 🎉', 'info');
+        }
+
+        async function testEmail() {
+            const { showNotification } = await import('./js/notifications.js');
+            const EmailAPI = await import('./js/email-api.js');
+            const emailAPI = new EmailAPI.default();
+            
+            try {
+                showNotification('Mengirim email test...', 'info');
+                
+                const result = await emailAPI.testEmail('qtonnnn@gmail.com');
+                
+                if (result.success) {
+                    showNotification('Email test berhasil dikirim ke qtonnnn@gmail.com! 📧', 'success');
+                } else {
+                    showNotification('Gagal mengirim email: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Test email error:', error);
+                showNotification('Error mengirim email test: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
